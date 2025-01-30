@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "build": "tsup",
+    "test": "vitest",
     "start": "npm run build && node dist/index.js"
   },
   "dependencies": {
@@ -16,6 +17,7 @@
   },
   "devDependencies": {
     "tsup": "^8.3.6",
-    "typescript": "^5.7.3"
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.4"
   }
 }
