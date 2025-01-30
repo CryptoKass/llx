@@ -56,33 +56,33 @@ export const getTokenSymbol = async (
   publicClient: PublicClient,
   address: Address
 ) => {
-  const symbol = await publicClient.readContract({
+  return (await publicClient.readContract({
     address,
     abi: TokenABI,
     functionName: "symbol",
-  });
+  })) as string;
 };
 
 export const getTokenDecimals = async (
   publicClient: PublicClient,
   address: Address
 ) => {
-  const decimals = await publicClient.readContract({
+  return (await publicClient.readContract({
     address,
     abi: TokenABI,
     functionName: "decimals",
-  });
+  })) as number;
 };
 
 export const getTokenTotalSupply = async (
   publicClient: PublicClient,
   address: Address
 ) => {
-  const totalSupply = await publicClient.readContract({
+  return (await publicClient.readContract({
     address,
     abi: TokenABI,
     functionName: "totalSupply",
-  });
+  })) as bigint;
 };
 
 export const getTokenDetails = async (
