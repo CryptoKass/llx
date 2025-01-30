@@ -1,0 +1,21 @@
+{
+  "name": "ll-sdk",
+  "version": "0.0.1",
+  "description": "LL SDK",
+  "main": "index.ts",
+  "type": "module",
+  "scripts": {
+    "build": "tsup",
+    "start": "npm run build && node dist/index.js"
+  },
+  "dependencies": {
+    "@uniswap/sdk-core": "^7.5.0",
+    "@uniswap/v3-sdk": "^3.24.0",
+    "@web3-name-sdk/core": "^0.3.2",
+    "viem": "^2.22.17"
+  },
+  "devDependencies": {
+    "tsup": "^8.3.6",
+    "typescript": "^5.7.3"
+  }
+}
