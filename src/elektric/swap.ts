@@ -6,7 +6,9 @@ import {
   type PublicClient,
   type WalletClient,
 } from "viem";
-import { ensurePermit2 } from "./permit2.js";
+import { getSupportedPublicClient, Pegasus, Phoenix } from "../chains.js";
+import { ensurePermit2Allowance } from "../token/permit2.js";
+import type { PreparedTx } from "../common.js";
 
 export interface SwapExactInputParams {
   tokenIn: `0x${string}`;
@@ -37,24 +39,27 @@ const UniversalRouterABI: Abi = [
   },
 ] as const;
 
-export const swapExactInput = async (
-  publicClient: PublicClient,
-  walletClient: WalletClient,
-  universalRouterAddress: `0x${string}`,
-  permit2Address: `0x${string}`,
+export const prepareSwapExactInput = async (
+  chainId: number,
+  sender: `0x${string}`,
   params: SwapExactInputParams
 ) => {
-  const [senderAddress] = await walletClient.getAddresses();
-  if (!senderAddress) throw new Error("No sender address");
+  const txs: PreparedTx[] = [];
+
+  const universalRouterAddress =
+    chainId == Phoenix.id
+      ? (Phoenix.elektrik.router as `0x${string}`)
+      : (Pegasus.elektrik.router as `0x${string}`);
 
   // Step 1. Ensure Permit2 is approved
-  await ensurePermit2(
-    publicClient,
-    walletClient,
-    permit2Address,
-    params.tokenIn,
-    universalRouterAddress,
-    params.amountIn
+  txs.push(
+    ...(await ensurePermit2Allowance(
+      chainId,
+      params.tokenIn,
+      sender,
+      universalRouterAddress,
+      params.amountIn
+    ))
   );
 
   // Step 2. Calculate minimum amount out
@@ -77,7 +82,7 @@ export const swapExactInput = async (
       { type: "bytes" },
       { type: "bool" },
     ],
-    [senderAddress, params.amountIn, minAmountOut, route, true]
+    [sender, params.amountIn, minAmountOut, route, true]
   );
 
   const data = encodeFunctionData({
@@ -87,15 +92,10 @@ export const swapExactInput = async (
   });
 
   // step 5. execute the swap
-  const tx = await walletClient.sendTransaction({
-    chain: walletClient.chain,
+  txs.push({
     to: universalRouterAddress,
-    account: senderAddress,
     data,
   });
 
-  return {
-    txHash: tx,
-    minAmountOut: minAmountOut,
-  } as SwapExactInputResult;
+  return txs;
 };
