@@ -62,10 +62,13 @@ export interface VerifiedContract extends BaseContract {
 export type Contract = UnverifiedContract | VerifiedContract;
 
 export const getContractInfo = async (chainId: number, address: string) => {
+  if (chainId !== lightlinkPegasus.id && chainId !== lightlinkPhoenix.id)
+    throw new Error("Unsupported chain");
+
   const explorer =
     chainId === lightlinkPegasus.id
-      ? lightlinkPegasus.blockExplorers.default
-      : lightlinkPhoenix.blockExplorers.default;
+      ? lightlinkPegasus.blockExplorers.default.url
+      : lightlinkPhoenix.blockExplorers.default.url;
   const apiUrl = explorer + "/api/v2/";
 
   const response = await fetch(apiUrl + "smart-contracts/" + address);

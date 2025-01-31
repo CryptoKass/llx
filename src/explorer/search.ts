@@ -68,8 +68,8 @@ export const search = async (
 
   const explorer =
     chainId === lightlinkPegasus.id
-      ? lightlinkPegasus.blockExplorers.default
-      : lightlinkPhoenix.blockExplorers.default;
+      ? lightlinkPegasus.blockExplorers.default.url
+      : lightlinkPhoenix.blockExplorers.default.url;
   const apiUrl = explorer + "/api/v2/";
   const response = await fetch(apiUrl + "search?q=" + query);
   const data = (await response.json()) as any;
