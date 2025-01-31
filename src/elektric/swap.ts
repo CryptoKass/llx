@@ -83,7 +83,7 @@ export const swapExactInput = async (
   const data = encodeFunctionData({
     functionName: "swapExactInput",
     abi: UniversalRouterABI,
-    args: [inputs],
+    args: [SWAP_EXACT_IN, inputs],
   });
 
   // step 5. execute the swap
