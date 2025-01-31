@@ -1,6 +1,6 @@
 import { lightlinkPegasus, lightlinkPhoenix } from "../chains.js";
 
-interface Protocol {
+export interface EnsProtocol {
   deployment_blockscout_base_url: string;
   description: string;
   docs_url: string;
@@ -11,15 +11,15 @@ interface Protocol {
   tld_list: string[];
 }
 
-interface EnsInfo {
+export interface EnsInfo {
   name: string;
-  protocol: Protocol;
+  protocol: EnsProtocol;
   address_hash: string;
   expiry_date: string;
   names_count: number;
 }
 
-interface BaseItem {
+export interface BaseItem {
   address: string;
   certified: boolean;
   is_smart_contract_verified: boolean;
@@ -29,22 +29,22 @@ interface BaseItem {
   url: string;
 }
 
-interface EnsDomainItem extends BaseItem {
+export interface EnsDomainItem extends BaseItem {
   type: "ens_domain";
   ens_info: EnsInfo;
 }
 
-interface ContractItem extends BaseItem {
+export interface ContractItem extends BaseItem {
   type: "contract";
   ens_info: null;
 }
 
-interface AddressItem extends BaseItem {
+export interface AddressItem extends BaseItem {
   type: "address";
   ens_info: null;
 }
 
-interface TokenItem extends BaseItem {
+export interface TokenItem extends BaseItem {
   type: "token";
   address_url: string;
   circulating_market_cap: number | null;
@@ -57,7 +57,7 @@ interface TokenItem extends BaseItem {
   total_supply: string;
 }
 
-type SearchItem = EnsDomainItem | ContractItem | AddressItem | TokenItem;
+export type SearchItem = EnsDomainItem | ContractItem | AddressItem | TokenItem;
 
 export const search = async (
   chainId: number,
