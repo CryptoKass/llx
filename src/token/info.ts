@@ -1,4 +1,4 @@
-import type { Abi, Address, PublicClient } from "viem";
+import type { Abi, Address } from "viem";
 import { getSupportedPublicClient } from "../chains.js";
 
 const TokenABI: Abi = [
