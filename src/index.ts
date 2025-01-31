@@ -7,4 +7,4 @@ export {
   fetchTokenName as getTokenName,
   fetchTokenSymbol as getTokenSymbol,
   fetchTokenTotalSupply as getTokenTotalSupply,
-} from "./token.js";
+} from "./token/token.js";
