@@ -5,7 +5,7 @@ LLX simplifies interacting with the main dapps on the LightLink network. Its pla
 ## Installation
 
 ```bash
-npm install --save @kasstools/llx
+npm install --save https://github.com/CryptoKass/llx
 ```
 
 ## Getting Started
@@ -13,8 +13,8 @@ npm install --save @kasstools/llx
 ### Token helpers
 
 ```ts
-import { fetchTokenInfo } from "@kasstools/llx";
-import { Phoenix } from "@kasstools/llx/chains";
+import { fetchTokenInfo } from "llx";
+import { Phoenix } from "llx/chains";
 
 const { name, symbol, decimals, totalSupply } = await fetchTokenInfo(
   Phoenix.id,
@@ -27,8 +27,8 @@ const balance = await fetchBalance(Phoenix.id, TOKEN_ADDRESS);
 ### Swaps
 
 ```ts
-import { prepareSwapExactInput, quoteExactInput } from "@kasstools/llx";
-import { Phoenix } from "@kasstools/llx/chains";
+import { prepareSwapExactInput, quoteExactInput } from "llx";
+import { Phoenix } from "llx/chains";
 
 const AMOUNT_IN = 1n * 10n ** 6n;
 const FEE = 3000;
@@ -63,7 +63,8 @@ const tx = await walletClient.sendTransaction({
 ### Domain resolution
 
 ```ts
-import { resolveEnsDomain } from "@kasstools/llx";
+import { resolveEnsDomain } from "llx";
+import { Phoenix } from "llx/chains";
 
 const address = await resolveEnsDomain(Phoenix.id, "lightlink.ll");
 ```
@@ -71,8 +72,8 @@ const address = await resolveEnsDomain(Phoenix.id, "lightlink.ll");
 ### Allowance and Permit2
 
 ```ts
-import { ensureAllowance } from "@kasstools/llx";
-import { Phoenix } from "@kasstools/llx/chains";
+import { ensureAllowance } from "llx";
+import { Phoenix } from "llx/chains";
 
 // Ensure allowance will prepare approval transactions for the token
 // if there is not sufficient allowance.
