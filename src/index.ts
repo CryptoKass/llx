@@ -4,6 +4,12 @@ export const elektrik = {
   swapExactInput,
 };
 
+import { prepareWrapTx, prepareUnwrapTx } from "./weth/index.js";
+export const weth = {
+  prepareWrapTx,
+  prepareUnwrapTx,
+};
+
 export { search, getContractInfo } from "./explorer/index.js";
 export { resolveEnsDomain, resolveLLDomain } from "./ens.js";
 export {
