@@ -26,6 +26,8 @@ interface Network {
     factory: string;
   };
   ens?: { resolver: string };
+  permit2: string;
+  weth: string;
 }
 
 export const Phoenix: Network = {
@@ -38,6 +40,8 @@ export const Phoenix: Network = {
     router: CONTRACTS.lightlink.UNIVERSAL_ROUTER,
     factory: CONTRACTS.lightlink.UNISWAP_V3_FACTORY_ADDRESS,
   },
+  permit2: "0xB952578f3520EE8Ea45b7914994dcf4702cEe578",
+  weth: "0x7EbeF2A4b1B09381Ec5B9dF8C5c6f2dBECA59c73",
 };
 
 export const Pegasus: Network = {
@@ -50,6 +54,8 @@ export const Pegasus: Network = {
     router: CONTRACTS.lightlinkTestnet.UNIVERSAL_ROUTER,
     factory: CONTRACTS.lightlinkTestnet.UNISWAP_V3_FACTORY_ADDRESS,
   },
+  permit2: "0x65b0dE86Df48d72aCdaF7E548b5C836663A0a4fa",
+  weth: "0xF42991f02C07AB66cFEa282E7E482382aEB85461",
 };
 
 export const getSupportedPublicClient = (id: number) => {
