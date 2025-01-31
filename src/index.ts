@@ -1,10 +1,22 @@
+import { quoteExactInput, swapExactInput } from "./elektric/index.js";
+
 export { search, getContractInfo } from "./explorer/index.js";
-export { quoteExactInput, swapExactInput } from "./elektric/index.js";
 export { resolveEnsDomain, resolveLLDomain } from "./ens.js";
 export {
-  fetchTokenInfo as getTokenDetails,
-  fetchTokenDecimals as getTokenDecimals,
-  fetchTokenName as getTokenName,
-  fetchTokenSymbol as getTokenSymbol,
-  fetchTokenTotalSupply as getTokenTotalSupply,
+  fetchTokenInfo,
+  fetchTokenDecimals,
+  fetchTokenName,
+  fetchTokenSymbol,
+  fetchTokenTotalSupply,
 } from "./token/info.js";
+export { fetchBalance } from "./token/balance.js";
+export {
+  fetchAllowance,
+  prepareApprovalTx,
+  ensureAllowance,
+} from "./token/approval.js";
+export {
+  fetchPermit2Allowance,
+  preparePermit2ApprovalTx,
+  ensurePermit2Allowance,
+} from "./token/permit2.js";
