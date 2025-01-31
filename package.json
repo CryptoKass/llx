@@ -1,7 +1,7 @@
 {
-  "name": "ll-sdk",
+  "name": "llx",
   "version": "0.0.1",
-  "description": "LL SDK",
+  "description": "LLX is a provider agnostic dev kit interacting with the main dapps on the LightLink network",
   "main": "index.ts",
   "type": "module",
   "scripts": {
