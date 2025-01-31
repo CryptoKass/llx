@@ -2,7 +2,7 @@ import { describe, expect, test } from "vitest";
 import { fetchTokenInfo } from "./info.js";
 import { lightlinkPhoenix } from "viem/chains";
 
-describe("Token", () => {
+describe("info", () => {
   const chainId = lightlinkPhoenix.id;
 
   test("should be able to get the token details", async () => {
