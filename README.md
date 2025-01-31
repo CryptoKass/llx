@@ -42,7 +42,7 @@ const quote = await quoteExactInput(Phoenix.id, {
 });
 
 // Then prepare the swap transaction
-const preparedTx = await prepareSwapExactInput(Phoenix.id, {
+const preparedTxs = await prepareSwapExactInput(Phoenix.id, {
   tokenIn: fromToken,
   tokenOut: toToken,
   amountIn: AMOUNT_IN,
@@ -52,12 +52,19 @@ const preparedTx = await prepareSwapExactInput(Phoenix.id, {
 });
 
 // Finally run the prepared tx with your provider. For example using viem:
-const tx = await walletClient.sendTransaction({
-  account: myAccount,
-  to: preparedTx.to,
-  value: preparedTx.value,
-  data: preparedTx.data,
-});
+for (const tx of preparedTxs) {
+  const hash = await walletClient.sendTransaction({
+    account: myAccount,
+    to: tx.to,
+    value: tx.value,
+    data: tx.data,
+  });
+
+  // wait for the tx to be mined
+  await publicClient.waitForTransactionReceipt({
+    hash,
+  });
+}
 ```
 
 ### Domain resolution
