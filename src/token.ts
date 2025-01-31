@@ -1,5 +1,4 @@
 import type { Abi, Address, PublicClient } from "viem";
-import { readContract } from "viem/actions";
 
 const TokenABI: Abi = [
   {
@@ -32,14 +31,14 @@ const TokenABI: Abi = [
   },
 ];
 
-export interface TokenDetails {
+export interface TokenInfo {
   name: string;
   symbol: string;
   decimals: number;
   totalSupply: bigint;
 }
 
-export const getTokenName = async (
+export const fetchTokenName = async (
   publicClient: PublicClient,
   address: Address
 ) => {
@@ -52,7 +51,7 @@ export const getTokenName = async (
   return name as string;
 };
 
-export const getTokenSymbol = async (
+export const fetchTokenSymbol = async (
   publicClient: PublicClient,
   address: Address
 ) => {
@@ -63,7 +62,7 @@ export const getTokenSymbol = async (
   })) as string;
 };
 
-export const getTokenDecimals = async (
+export const fetchTokenDecimals = async (
   publicClient: PublicClient,
   address: Address
 ) => {
@@ -74,7 +73,7 @@ export const getTokenDecimals = async (
   })) as number;
 };
 
-export const getTokenTotalSupply = async (
+export const fetchTokenTotalSupply = async (
   publicClient: PublicClient,
   address: Address
 ) => {
@@ -85,15 +84,15 @@ export const getTokenTotalSupply = async (
   })) as bigint;
 };
 
-export const getTokenDetails = async (
+export const fetchTokenInfo = async (
   publicClient: PublicClient,
   address: Address
 ) => {
   const [name, symbol, decimals, totalSupply] = await Promise.all([
-    getTokenName(publicClient, address),
-    getTokenSymbol(publicClient, address),
-    getTokenDecimals(publicClient, address),
-    getTokenTotalSupply(publicClient, address),
+    fetchTokenName(publicClient, address),
+    fetchTokenSymbol(publicClient, address),
+    fetchTokenDecimals(publicClient, address),
+    fetchTokenTotalSupply(publicClient, address),
   ]);
 
   return { name, symbol, decimals, totalSupply };
