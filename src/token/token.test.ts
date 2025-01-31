@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { fetchTokenInfo } from "./token.js";
+import { fetchTokenInfo } from "./info.js";
 import { lightlinkPhoenix } from "viem/chains";
 
 describe("Token", () => {
