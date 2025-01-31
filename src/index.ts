@@ -1,4 +1,8 @@
-import { quoteExactInput, swapExactInput } from "./elektric/index.js";
+import { quoteExactInput, swapExactInput } from "./elektrik/index.js";
+export const elektrik = {
+  quoteExactInput,
+  swapExactInput,
+};
 
 export { search, getContractInfo } from "./explorer/index.js";
 export { resolveEnsDomain, resolveLLDomain } from "./ens.js";
