@@ -5,6 +5,7 @@ import {
   type Address,
   type PublicClient,
 } from "viem";
+import { getSupportedPublicClient, Pegasus, Phoenix } from "../chains.js";
 
 const QuoterABI: Abi = [
   {
@@ -61,6 +62,17 @@ export interface QuoteResult {
 }
 
 export const quoteExactInput = async (
+  chainId: number,
+  params: QuoteExactInputSingleParams
+): Promise<QuoteResult> => {
+  const client = getSupportedPublicClient(chainId);
+  const quoterContractAddress =
+    chainId == Phoenix.id ? Phoenix.elektrik.quoter : Pegasus.elektrik.quoter;
+
+  return _quoteExactInput(client, quoterContractAddress as Address, params);
+};
+
+const _quoteExactInput = async (
   client: PublicClient,
   quoterContractAddress: `0x${string}`,
   params: QuoteExactInputSingleParams
