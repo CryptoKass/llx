@@ -1,18 +1,13 @@
 import { describe, expect, test } from "vitest";
 import { fetchTokenInfo } from "./token.js";
-import { lightlinkPegasus } from "viem/chains";
-import { lightlinkPhoenix } from "./chains.js";
-import { createPublicClient, http } from "viem";
+import { lightlinkPhoenix } from "viem/chains";
 
 describe("Token", () => {
-  const publicClient = createPublicClient({
-    chain: lightlinkPhoenix,
-    transport: http(),
-  });
+  const chainId = lightlinkPhoenix.id;
 
   test("should be able to get the token details", async () => {
     const token = await fetchTokenInfo(
-      publicClient,
+      chainId,
       "0x18fB38404DADeE1727Be4b805c5b242B5413Fa40"
     );
     expect(token.name).toBe("USD Coin");

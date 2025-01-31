@@ -1,5 +1,5 @@
 import { expect, describe, it } from "vitest";
-import { lightlinkPegasus, lightlinkPhoenix } from "../chains.js";
+import { lightlinkPegasus, lightlinkPhoenix } from "viem/chains";
 import { search } from "./search.js";
 
 describe("search", () => {

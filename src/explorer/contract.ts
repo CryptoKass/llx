@@ -1,5 +1,5 @@
 import type { Abi } from "viem";
-import { lightlinkPegasus, lightlinkPhoenix } from "../chains.js";
+import { lightlinkPegasus, lightlinkPhoenix } from "viem/chains";
 
 export interface BaseContract {
   is_verified?: boolean;

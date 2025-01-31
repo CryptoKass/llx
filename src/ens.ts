@@ -1,8 +1,8 @@
 import { createWeb3Name } from "@web3-name-sdk/core";
 import { tldNamehash } from "@web3-name-sdk/core/utils";
 import { createPublicClient, http, type Abi, type Address } from "viem";
+import { lightlinkPhoenix } from "viem/chains";
 import { normalize } from "viem/ens";
-import { lightlinkPhoenix } from "./chains.js";
 
 // "function resolver(bytes32 node) external view returns (address)",
 const ENSRegistryABI: Abi = [

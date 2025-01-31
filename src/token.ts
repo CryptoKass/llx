@@ -1,4 +1,5 @@
 import type { Abi, Address, PublicClient } from "viem";
+import { getSupportedPublicClient } from "./chains.js";
 
 const TokenABI: Abi = [
   {
@@ -38,10 +39,9 @@ export interface TokenInfo {
   totalSupply: bigint;
 }
 
-export const fetchTokenName = async (
-  publicClient: PublicClient,
-  address: Address
-) => {
+export const fetchTokenName = async (chainId: number, address: Address) => {
+  const publicClient = getSupportedPublicClient(chainId);
+
   const name = await publicClient.readContract({
     address,
     abi: TokenABI,
@@ -51,10 +51,9 @@ export const fetchTokenName = async (
   return name as string;
 };
 
-export const fetchTokenSymbol = async (
-  publicClient: PublicClient,
-  address: Address
-) => {
+export const fetchTokenSymbol = async (chainId: number, address: Address) => {
+  const publicClient = getSupportedPublicClient(chainId);
+
   return (await publicClient.readContract({
     address,
     abi: TokenABI,
@@ -62,10 +61,9 @@ export const fetchTokenSymbol = async (
   })) as string;
 };
 
-export const fetchTokenDecimals = async (
-  publicClient: PublicClient,
-  address: Address
-) => {
+export const fetchTokenDecimals = async (chainId: number, address: Address) => {
+  const publicClient = getSupportedPublicClient(chainId);
+
   return (await publicClient.readContract({
     address,
     abi: TokenABI,
@@ -74,9 +72,11 @@ export const fetchTokenDecimals = async (
 };
 
 export const fetchTokenTotalSupply = async (
-  publicClient: PublicClient,
+  chainId: number,
   address: Address
 ) => {
+  const publicClient = getSupportedPublicClient(chainId);
+
   return (await publicClient.readContract({
     address,
     abi: TokenABI,
@@ -84,15 +84,12 @@ export const fetchTokenTotalSupply = async (
   })) as bigint;
 };
 
-export const fetchTokenInfo = async (
-  publicClient: PublicClient,
-  address: Address
-) => {
+export const fetchTokenInfo = async (chainId: number, address: Address) => {
   const [name, symbol, decimals, totalSupply] = await Promise.all([
-    fetchTokenName(publicClient, address),
-    fetchTokenSymbol(publicClient, address),
-    fetchTokenDecimals(publicClient, address),
-    fetchTokenTotalSupply(publicClient, address),
+    fetchTokenName(chainId, address),
+    fetchTokenSymbol(chainId, address),
+    fetchTokenDecimals(chainId, address),
+    fetchTokenTotalSupply(chainId, address),
   ]);
 
   return { name, symbol, decimals, totalSupply };

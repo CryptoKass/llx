@@ -1,4 +1,4 @@
-import { lightlinkPegasus, lightlinkPhoenix } from "../chains.js";
+import { lightlinkPegasus, lightlinkPhoenix } from "viem/chains";
 
 export interface EnsProtocol {
   deployment_blockscout_base_url: string;

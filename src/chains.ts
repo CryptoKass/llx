@@ -1,4 +1,5 @@
-import { defineChain } from "viem";
+import { createPublicClient, defineChain, http } from "viem";
+import { lightlinkPegasus, lightlinkPhoenix } from "viem/chains";
 
 const CONTRACTS = {
   lightlink: {
@@ -14,74 +15,52 @@ const CONTRACTS = {
   },
 };
 
-export const lightlinkPhoenix = defineChain({
+interface Network {
+  id: number;
+  name: string;
+  rpcUrl: string;
+  explorerUrl: string;
+  elektrik: {
+    quoter: string;
+    router: string;
+    factory: string;
+  };
+  ens?: { resolver: string };
+}
+
+export const Phoenix: Network = {
   id: 1890,
   name: "Lightlink Phoenix",
-  nativeCurrency: {
-    decimals: 18,
-    name: "Ether",
-    symbol: "ETH",
+  rpcUrl: process.env.LIGHTLINK_MAINNET_RPC_URL || "",
+  explorerUrl: "https://phoenix.lightlink.io",
+  elektrik: {
+    quoter: CONTRACTS.lightlink.UNISWAP_V3_QUOTER_ADDRESS,
+    router: CONTRACTS.lightlink.UNIVERSAL_ROUTER,
+    factory: CONTRACTS.lightlink.UNISWAP_V3_FACTORY_ADDRESS,
   },
-  rpcUrls: {
-    default: {
-      http: [
-        process.env.LIGHTLINK_MAINNET_RPC_URL ||
-          "https://replicator-01.phoenix.lightlink.io/rpc/v1",
-      ],
-      webSocket: [
-        process.env.LIGHTLINK_MAINNET_RPC_URL ||
-          "wss://replicator-01.phoenix.lightlink.io/rpc/v1",
-      ],
-    },
-  },
-  blockExplorers: {
-    default: { name: "Explorer", url: "https://phoenix.lightlink.io" },
-  },
-  contracts: {
-    uniswapV3Factory: {
-      address: CONTRACTS.lightlink.UNISWAP_V3_FACTORY_ADDRESS,
-    },
-    universalRouter: {
-      address: CONTRACTS.lightlink.UNIVERSAL_ROUTER,
-    },
-    uniswapV3Quoter: {
-      address: CONTRACTS.lightlink.UNISWAP_V3_QUOTER_ADDRESS,
-    },
-  },
-});
+};
 
-export const lightlinkPegasus = defineChain({
+export const Pegasus: Network = {
   id: 1891,
-  name: "Lightlink Pegasus Testnet",
-  nativeCurrency: {
-    decimals: 18,
-    name: "Ether",
-    symbol: "ETH",
+  name: "Lightlink Pegasus",
+  rpcUrl: process.env.LIGHTLINK_TESTNET_RPC_URL || "",
+  explorerUrl: "https://pegasus.lightlink.io",
+  elektrik: {
+    quoter: CONTRACTS.lightlinkTestnet.UNISWAP_V3_QUOTER_ADDRESS,
+    router: CONTRACTS.lightlinkTestnet.UNIVERSAL_ROUTER,
+    factory: CONTRACTS.lightlinkTestnet.UNISWAP_V3_FACTORY_ADDRESS,
   },
-  rpcUrls: {
-    default: {
-      http: [
-        process.env.LIGHTLINK_TESTNET_RPC_URL ||
-          "https://replicator-01.pegasus.lightlink.io/rpc/v1",
-      ],
-      webSocket: [
-        process.env.LIGHTLINK_TESTNET_RPC_URL ||
-          "wss://replicator-01.pegasus.lightlink.io/rpc/v1",
-      ],
-    },
-  },
-  blockExplorers: {
-    default: { name: "Explorer", url: "https://pegasus.lightlink.io" },
-  },
-  contracts: {
-    uniswapV3Factory: {
-      address: CONTRACTS.lightlinkTestnet.UNISWAP_V3_FACTORY_ADDRESS,
-    },
-    universalRouter: {
-      address: CONTRACTS.lightlinkTestnet.UNIVERSAL_ROUTER,
-    },
-    uniswapV3Quoter: {
-      address: CONTRACTS.lightlinkTestnet.UNISWAP_V3_QUOTER_ADDRESS,
-    },
-  },
-});
+};
+
+export const getSupportedPublicClient = (id: number) => {
+  if (id != Phoenix.id && id != Pegasus.id) {
+    throw new Error("Unsupported chain");
+  }
+
+  const chain = id == Phoenix.id ? lightlinkPhoenix : lightlinkPegasus;
+
+  return createPublicClient({
+    chain: chain,
+    transport: http(),
+  });
+};

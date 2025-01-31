@@ -1,7 +1,8 @@
 import { describe, expect, test } from "vitest";
 import { quoteExactInput } from "./quote.js";
 import { createPublicClient, http, type Address } from "viem";
-import { lightlinkPhoenix } from "../chains.js";
+import { lightlinkPhoenix } from "viem/chains";
+import { Phoenix } from "../chains.js";
 
 describe("Quote", () => {
   test("should be able to get a quote", async () => {
@@ -15,7 +16,7 @@ describe("Quote", () => {
 
     const quote = await quoteExactInput(
       publicClient,
-      lightlinkPhoenix.contracts.uniswapV3Quoter.address as Address,
+      Phoenix.elektrik.quoter as Address,
       {
         fromToken,
         toToken,
