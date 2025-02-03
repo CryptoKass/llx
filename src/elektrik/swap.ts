@@ -44,6 +44,9 @@ export const prepareSwapExactInput = async (
   sender: `0x${string}`,
   params: SwapExactInputParams
 ) => {
+  if (params.slippage < 0 || params.slippage > 1)
+    throw new Error("Slippage must be between 0 and 1");
+
   const txs: PreparedTx[] = [];
 
   const universalRouterAddress =
@@ -58,14 +61,16 @@ export const prepareSwapExactInput = async (
       params.tokenIn,
       sender,
       universalRouterAddress,
-      params.amountIn
+      params.amountIn + BigInt(1)
     ))
   );
 
   // Step 2. Calculate minimum amount out
-  const slippageBP = BigInt(params.slippage * 10000);
+  const slippageBP = BigInt(Math.floor(params.slippage * 10000));
   const minAmountOut =
     params.amountOut - (params.amountOut * slippageBP) / 10000n;
+
+  console.log("minAmountOut", minAmountOut);
 
   // Step 3. encode the swap route
   const route = encodePacked(
@@ -86,9 +91,9 @@ export const prepareSwapExactInput = async (
   );
 
   const data = encodeFunctionData({
-    functionName: "swapExactInput",
+    functionName: "execute",
     abi: UniversalRouterABI,
-    args: [SWAP_EXACT_IN, inputs],
+    args: [SWAP_EXACT_IN, [inputs]],
   });
 
   // step 5. execute the swap
