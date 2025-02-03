@@ -15,7 +15,12 @@
     "noImplicitOverride": true,
     /* If transpiling with TypeScript: */
     "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "lib": ["es2022"],
     "noEmit": true
+  },
+  "ts-node": {
+    "esm": true,
+    "experimentalSpecifierResolution": "node"
   }
 }
