@@ -48,7 +48,7 @@ const preparedTxs = await prepareSwapExactInput(Phoenix.id, {
   amountIn: AMOUNT_IN,
   amountOut: quote.amountOut,
   fee: FEE,
-  slippage: 1,
+  slippage: 0.1, // 10%
 });
 
 // Finally run the prepared tx with your provider. For example using viem:
