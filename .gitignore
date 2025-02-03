@@ -6,3 +6,6 @@ logs
 
 # env
 .env
+
+# other tests
+.example
