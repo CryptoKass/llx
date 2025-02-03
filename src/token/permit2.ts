@@ -54,7 +54,8 @@ export function preparePermit2ApprovalTx(
 export async function fetchPermit2Allowance(
   chainId: number,
   owner: `0x${string}`,
-  token: `0x${string}`
+  token: `0x${string}`,
+  spender: `0x${string}`
 ) {
   const publicClient = getSupportedPublicClient(chainId);
 
@@ -67,7 +68,7 @@ export async function fetchPermit2Allowance(
     address: permit2,
     abi: Permit2ABI,
     functionName: "allowance",
-    args: [owner, token],
+    args: [owner, token, spender],
   })) as bigint;
 }
 
@@ -91,7 +92,7 @@ export async function ensurePermit2Allowance(
   txs.push(...(await ensureAllowance(chainId, token, owner, permit2, amount)));
 
   // Step 2. Check if target is approved on Permit2
-  const allowance = await fetchPermit2Allowance(chainId, owner, token);
+  const allowance = await fetchPermit2Allowance(chainId, owner, token, spender);
   if (allowance >= amount) {
     return txs;
   }
