@@ -29,5 +29,6 @@ export const prepareUnwrapTx = (
       functionName: "withdraw",
       args: [amount],
     }),
+    description: "Unwrapping WETH",
   };
 };

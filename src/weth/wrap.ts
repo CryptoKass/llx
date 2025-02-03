@@ -24,5 +24,6 @@ export const prepareWrapTx = (chainId: number, amount: bigint): PreparedTx => {
     to: wethAddress,
     data: "0x",
     value: amount,
+    description: "Wrapping ETH",
   };
 };

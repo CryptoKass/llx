@@ -100,6 +100,7 @@ export const prepareSwapExactInput = async (
   txs.push({
     to: universalRouterAddress,
     data,
+    description: "Executing swap via Universal Router",
   });
 
   return txs;

@@ -215,7 +215,8 @@ function prepareApprovalTx(token, target, amount) {
       abi: TokenABI,
       functionName: "approve",
       args: [target, amount]
-    })
+    }),
+    description: "Approving token to be spent by target"
   };
 }
 async function fetchAllowance(chainId, token, owner, spender) {
@@ -270,7 +271,8 @@ function preparePermit2ApprovalTx(chainId, token, target, amount, deadline) {
       abi: Permit2ABI,
       functionName: "approve",
       args: [token, target, amount, deadline]
-    })
+    }),
+    description: "Using Permit2 to approve the target to spend the token"
   };
 }
 async function fetchPermit2Allowance(chainId, owner, token, spender) {
@@ -349,7 +351,8 @@ var prepareSwapExactInput = async (chainId, sender, params) => {
   });
   txs.push({
     to: universalRouterAddress,
-    data
+    data,
+    description: "Executing swap via Universal Router"
   });
   return txs;
 };
@@ -361,7 +364,8 @@ var prepareWrapTx = (chainId, amount) => {
   return {
     to: wethAddress,
     data: "0x",
-    value: amount
+    value: amount,
+    description: "Wrapping ETH"
   };
 };
 
@@ -385,7 +389,8 @@ var prepareUnwrapTx = (chainId, amount) => {
       abi: WETH_ABI,
       functionName: "withdraw",
       args: [amount]
-    })
+    }),
+    description: "Unwrapping WETH"
   };
 };
 

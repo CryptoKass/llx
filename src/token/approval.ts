@@ -37,6 +37,7 @@ export function prepareApprovalTx(
       functionName: "approve",
       args: [target, amount],
     }),
+    description: "Approving token to be spent by target",
   };
 }
 

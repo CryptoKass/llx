@@ -6,6 +6,7 @@ interface PreparedTx {
     value?: bigint;
     gasLimit?: bigint;
     gasPrice?: bigint;
+    description?: string;
 }
 
 interface SwapExactInputParams {

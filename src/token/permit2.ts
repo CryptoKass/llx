@@ -48,6 +48,7 @@ export function preparePermit2ApprovalTx(
       functionName: "approve",
       args: [token, target, amount, deadline],
     }),
+    description: "Using Permit2 to approve the target to spend the token",
   };
 }
 
