@@ -329,7 +329,6 @@ var prepareSwapExactInput = async (chainId, sender, params) => {
   );
   const slippageBP = BigInt(Math.floor(params.slippage * 1e4));
   const minAmountOut = params.amountOut - params.amountOut * slippageBP / 10000n;
-  console.log("minAmountOut", minAmountOut);
   const route = (0, import_viem5.encodePacked)(
     ["address", "uint24", "address"],
     [params.tokenIn, params.fee, params.tokenOut]
@@ -599,3 +598,4 @@ var weth = {
   search,
   weth
 });
+//# sourceMappingURL=index.cjs.map

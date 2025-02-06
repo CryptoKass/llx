@@ -1,11 +1,23 @@
 {
-  "name": "llx",
-  "version": "0.0.1",
+  "name": "@cryptokass/llx",
+  "version": "0.0.2",
   "description": "LLX is a provider agnostic dev kit interacting with the main dapps on the LightLink network",
-  "main": "index.ts",
   "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    "import": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "require": {
+      "types": "./dist/index.d.cts",
+      "require": "./dist/index.cjs"
+    }
+  },
   "scripts": {
-    "build": "tsup",
+    "build": "tsup --format esm,cjs --dts --clean --sourcemap",
     "test": "vitest",
     "start": "npm run build && node dist/index.js",
     "example": "tsx .example/swap.ts"

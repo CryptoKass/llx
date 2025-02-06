@@ -70,8 +70,6 @@ export const prepareSwapExactInput = async (
   const minAmountOut =
     params.amountOut - (params.amountOut * slippageBP) / 10000n;
 
-  console.log("minAmountOut", minAmountOut);
-
   // Step 3. encode the swap route
   const route = encodePacked(
     ["address", "uint24", "address"],
