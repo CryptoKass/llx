@@ -67,7 +67,9 @@ export const quoteExactInput = async (
 ): Promise<QuoteResult> => {
   const client = getSupportedPublicClient(chainId);
   const quoterContractAddress =
-    chainId == Phoenix.id ? Phoenix.elektrik.quoter : Pegasus.elektrik.quoter;
+    chainId == Phoenix.id
+      ? Phoenix.uniswapv3!.quoter
+      : Pegasus.uniswapv3!.quoter;
 
   return _quoteExactInput(client, quoterContractAddress as Address, params);
 };

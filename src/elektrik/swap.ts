@@ -51,8 +51,8 @@ export const prepareSwapExactInput = async (
 
   const universalRouterAddress =
     chainId == Phoenix.id
-      ? (Phoenix.elektrik.router as `0x${string}`)
-      : (Pegasus.elektrik.router as `0x${string}`);
+      ? (Phoenix.uniswapv3!.router as `0x${string}`)
+      : (Pegasus.uniswapv3!.router as `0x${string}`);
 
   // Step 1. Ensure Permit2 is approved
   txs.push(
