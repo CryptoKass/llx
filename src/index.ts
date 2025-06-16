@@ -1,5 +1,5 @@
-import { quoteExactInput, swapExactInput } from "./elektrik/index.js";
-export const elektrik = {
+import { quoteExactInput, swapExactInput } from "./swap/index.js";
+export const swap = {
   quoteExactInput,
   swapExactInput,
 };

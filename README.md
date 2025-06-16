@@ -27,14 +27,14 @@ const balance = await fetchBalance(Phoenix.id, TOKEN_ADDRESS);
 ### Swaps
 
 ```ts
-import { prepareSwapExactInput, quoteExactInput } from "llx";
+import { swap } from "llx";
 import { Phoenix } from "llx/chains";
 
 const AMOUNT_IN = 1n * 10n ** 6n;
 const FEE = 3000;
 
 // First get a quote for the swap
-const quote = await quoteExactInput(Phoenix.id, {
+const quote = await swap.quoteExactInput(Phoenix.id, {
   fromToken,
   toToken,
   amountIn: AMOUNT_IN,
@@ -42,7 +42,7 @@ const quote = await quoteExactInput(Phoenix.id, {
 });
 
 // Then prepare the swap transaction
-const preparedTxs = await prepareSwapExactInput(Phoenix.id, {
+const preparedTxs = await swap.prepareSwapExactInput(Phoenix.id, {
   tokenIn: fromToken,
   tokenOut: toToken,
   amountIn: AMOUNT_IN,
