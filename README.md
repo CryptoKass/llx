@@ -122,10 +122,19 @@ for (const tx of txs) {
 Only ETH bridging is supported for now.
 
 ```ts
-import { bridge } from "llx";
+import { prepareBridgeTransfer } from "llx";
 import { Phoenix } from "llx/chains";
 
-const txs = await bridge(Phoenix.id, {
+const txs = await prepareBridgeTransfer(Phoenix.id, {
   amount: AMOUNT,
 });
+
+for (const tx of txs) {
+  const hash = await walletClient.sendTransaction({
+    account: myAccount,
+    to: tx.to,
+    value: tx.value,
+    data: tx.data,
+  });
+}
 ```

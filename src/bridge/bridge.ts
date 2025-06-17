@@ -9,7 +9,10 @@ interface BridgeParams {
   minGasLimit?: number;
 }
 
-export const bridge = (chainRef: ChainRef, params: BridgeParams) => {
+export const prepareBridgeTransfer = (
+  chainRef: ChainRef,
+  params: BridgeParams
+) => {
   if (params.token === "eth") {
     return prepareStandardBridgeETHDeposit(chainRef, params);
   }
