@@ -108,7 +108,7 @@ export const Sepolia: Network = {
     standardBridge: CONTRACTS.ethereumSepolia.STANDARD_BRIDGE as Address,
   },
   permit2: "0x000000000022D473030F116dDEE9F6B43aC78BA3",
-  weth: "0x4200000000000000000000000000000000000006",
+  weth: "0x7b79995e5f793A07Bc00c21412e50Ecae098E7f9",
 };
 
 const chains = [Phoenix, Pegasus, Ethereum];
