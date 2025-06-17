@@ -1,5 +1,7 @@
 # LLX
 
+![LLX](./llx.png)
+
 LLX simplifies interacting with the main dapps on the LightLink network. Its platform agnostic and can be used with ethers, wagmi, viem, etc.
 
 ## Features
