@@ -1,6 +1,6 @@
 # LLX
 
-![LLX](./llx.png)
+![LLX](https://github.com/CryptoKass/llx/blob/main/assets/llx.png?raw=true)
 
 LLX simplifies interacting with the main dapps on the LightLink network. Its platform agnostic and can be used with ethers, wagmi, viem, etc.
 
