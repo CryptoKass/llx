@@ -1,5 +1,5 @@
 import type { Abi, Address } from "viem";
-import { getSupportedPublicClient } from "../chains.js";
+import { getPublicClient, type ChainRef } from "../chains.js";
 
 const TokenABI: Abi = [
   {
@@ -39,8 +39,8 @@ export interface TokenInfo {
   totalSupply: bigint;
 }
 
-export const fetchTokenName = async (chainId: number, address: Address) => {
-  const publicClient = getSupportedPublicClient(chainId);
+export const fetchTokenName = async (chainRef: ChainRef, address: Address) => {
+  const publicClient = getPublicClient(chainRef);
 
   const name = await publicClient.readContract({
     address,
@@ -51,8 +51,11 @@ export const fetchTokenName = async (chainId: number, address: Address) => {
   return name as string;
 };
 
-export const fetchTokenSymbol = async (chainId: number, address: Address) => {
-  const publicClient = getSupportedPublicClient(chainId);
+export const fetchTokenSymbol = async (
+  chainRef: ChainRef,
+  address: Address
+) => {
+  const publicClient = getPublicClient(chainRef);
 
   return (await publicClient.readContract({
     address,
@@ -61,8 +64,11 @@ export const fetchTokenSymbol = async (chainId: number, address: Address) => {
   })) as string;
 };
 
-export const fetchTokenDecimals = async (chainId: number, address: Address) => {
-  const publicClient = getSupportedPublicClient(chainId);
+export const fetchTokenDecimals = async (
+  chainRef: ChainRef,
+  address: Address
+) => {
+  const publicClient = getPublicClient(chainRef);
 
   return (await publicClient.readContract({
     address,
@@ -72,10 +78,10 @@ export const fetchTokenDecimals = async (chainId: number, address: Address) => {
 };
 
 export const fetchTokenTotalSupply = async (
-  chainId: number,
+  chainRef: ChainRef,
   address: Address
 ) => {
-  const publicClient = getSupportedPublicClient(chainId);
+  const publicClient = getPublicClient(chainRef);
 
   return (await publicClient.readContract({
     address,
@@ -84,12 +90,12 @@ export const fetchTokenTotalSupply = async (
   })) as bigint;
 };
 
-export const fetchTokenInfo = async (chainId: number, address: Address) => {
+export const fetchTokenInfo = async (chainRef: ChainRef, address: Address) => {
   const [name, symbol, decimals, totalSupply] = await Promise.all([
-    fetchTokenName(chainId, address),
-    fetchTokenSymbol(chainId, address),
-    fetchTokenDecimals(chainId, address),
-    fetchTokenTotalSupply(chainId, address),
+    fetchTokenName(chainRef, address),
+    fetchTokenSymbol(chainRef, address),
+    fetchTokenDecimals(chainRef, address),
+    fetchTokenTotalSupply(chainRef, address),
   ]);
 
   return { name, symbol, decimals, totalSupply };

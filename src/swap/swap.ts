@@ -3,10 +3,8 @@ import {
   encodeFunctionData,
   encodePacked,
   type Abi,
-  type PublicClient,
-  type WalletClient,
 } from "viem";
-import { getSupportedPublicClient, Pegasus, Phoenix } from "../chains.js";
+import { Pegasus, Phoenix, resolveChainRef, type ChainRef } from "../chains.js";
 import { ensurePermit2Allowance } from "../token/permit2.js";
 import type { PreparedTx } from "../common.js";
 
@@ -40,7 +38,7 @@ const UniversalRouterABI: Abi = [
 ] as const;
 
 export const prepareSwapExactInput = async (
-  chainId: number,
+  chainRef: ChainRef,
   sender: `0x${string}`,
   params: SwapExactInputParams
 ) => {
@@ -49,15 +47,16 @@ export const prepareSwapExactInput = async (
 
   const txs: PreparedTx[] = [];
 
-  const universalRouterAddress =
-    chainId == Phoenix.id
-      ? (Phoenix.uniswapv3!.router as `0x${string}`)
-      : (Pegasus.uniswapv3!.router as `0x${string}`);
+  const chain = resolveChainRef(chainRef);
+  if (!chain) throw new Error("Unsupported chain");
+  if (!chain.uniswapv3) throw new Error("Uniswap V3 not supported");
+
+  const universalRouterAddress = chain.uniswapv3.router as `0x${string}`;
 
   // Step 1. Ensure Permit2 is approved
   txs.push(
     ...(await ensurePermit2Allowance(
-      chainId,
+      chain.id,
       params.tokenIn,
       sender,
       universalRouterAddress,

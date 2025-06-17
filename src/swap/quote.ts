@@ -5,7 +5,7 @@ import {
   type Address,
   type PublicClient,
 } from "viem";
-import { getSupportedPublicClient, Pegasus, Phoenix } from "../chains.js";
+import { getPublicClient, resolveChainRef, type ChainRef } from "../chains.js";
 
 const QuoterABI: Abi = [
   {
@@ -62,15 +62,15 @@ export interface QuoteResult {
 }
 
 export const quoteExactInput = async (
-  chainId: number,
+  chainRef: ChainRef,
   params: QuoteExactInputSingleParams
 ): Promise<QuoteResult> => {
-  const client = getSupportedPublicClient(chainId);
-  const quoterContractAddress =
-    chainId == Phoenix.id
-      ? Phoenix.uniswapv3!.quoter
-      : Pegasus.uniswapv3!.quoter;
+  const chain = resolveChainRef(chainRef);
+  if (!chain) throw new Error("Unsupported chain");
+  if (!chain.uniswapv3) throw new Error("Uniswap V3 not supported");
 
+  const client = getPublicClient(chainRef);
+  const quoterContractAddress = chain.uniswapv3.quoter as `0x${string}`;
   return _quoteExactInput(client, quoterContractAddress as Address, params);
 };
 

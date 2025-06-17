@@ -1,7 +1,6 @@
-import { ChainId } from "@uniswap/sdk-core";
 import { prepareStandardBridgeETHDeposit } from "./standard.js";
 import type { Address } from "viem";
-import { getChainById } from "../chains.js";
+import { type ChainRef } from "../chains.js";
 
 interface BridgeParams {
   amount: bigint;
@@ -10,9 +9,9 @@ interface BridgeParams {
   minGasLimit?: number;
 }
 
-export const bridge = (chainId: number, params: BridgeParams) => {
+export const bridge = (chainRef: ChainRef, params: BridgeParams) => {
   if (params.token === "eth") {
-    return prepareStandardBridgeETHDeposit(chainId, params);
+    return prepareStandardBridgeETHDeposit(chainRef, params);
   }
 
   throw new Error("Unsupported asset");

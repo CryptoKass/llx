@@ -1,5 +1,16 @@
-import { createPublicClient, defineChain, http, type Address } from "viem";
-import { lightlinkPegasus, lightlinkPhoenix } from "viem/chains";
+import {
+  createPublicClient,
+  defineChain,
+  http,
+  type Address,
+  type Chain,
+} from "viem";
+import {
+  lightlinkPegasus,
+  lightlinkPhoenix,
+  mainnet,
+  sepolia,
+} from "viem/chains";
 
 const CONTRACTS = {
   lightlink: {
@@ -111,21 +122,68 @@ export const Sepolia: Network = {
   weth: "0x7b79995e5f793A07Bc00c21412e50Ecae098E7f9",
 };
 
-const chains = [Phoenix, Pegasus, Ethereum];
+export const chains = [Phoenix, Pegasus, Ethereum, Sepolia];
 
 export const getChainById = (id: number) => {
   return chains.find((chain) => chain.id == id);
 };
 
-export const getSupportedPublicClient = (id: number) => {
-  if (id != Phoenix.id && id != Pegasus.id) {
-    throw new Error("Unsupported chain");
+// export const getSupportedPublicClient = (id: number) => {
+//   if (id != Phoenix.id && id != Pegasus.id) {
+//     throw new Error("Unsupported chain");
+//   }
+
+//   const chain = id == Phoenix.id ? lightlinkPhoenix : lightlinkPegasus;
+
+//   return createPublicClient({
+//     chain: chain,
+//     transport: http(),
+//   });
+// };
+
+export const getPublicClient = (chainRef: ChainRef) => {
+  const chain = resolveChainRef(chainRef);
+  if (!chain) throw new Error("Unsupported chain");
+
+  let viemChain: Chain;
+  switch (chain.id) {
+    case Phoenix.id:
+      viemChain = lightlinkPhoenix;
+      break;
+    case Pegasus.id:
+      viemChain = lightlinkPegasus;
+      break;
+    case Ethereum.id:
+      viemChain = mainnet;
+      break;
+    case Sepolia.id:
+      viemChain = sepolia;
+      break;
+    default:
+      viemChain = {
+        id: chain.id,
+        name: chain.name,
+        nativeCurrency: mainnet.nativeCurrency,
+        rpcUrls: { default: { http: [chain.rpcUrl] } },
+        blockExplorers: {
+          default: { name: "explorer", url: chain.explorerUrl },
+        },
+        testnet: false,
+      };
   }
 
-  const chain = id == Phoenix.id ? lightlinkPhoenix : lightlinkPegasus;
-
   return createPublicClient({
-    chain: chain,
+    chain: viemChain,
     transport: http(),
   });
+};
+
+export type ChainRef = number | Network;
+
+export const resolveChainRef = (ref: ChainRef) => {
+  if (typeof ref === "number") {
+    return getChainById(ref);
+  }
+
+  return ref;
 };

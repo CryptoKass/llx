@@ -1,4 +1,5 @@
 import { lightlinkPegasus, lightlinkPhoenix } from "viem/chains";
+import { resolveChainRef, type ChainRef } from "../chains.js";
 
 export interface EnsProtocol {
   deployment_blockscout_base_url: string;
@@ -60,17 +61,15 @@ export interface TokenItem extends BaseItem {
 export type SearchItem = EnsDomainItem | ContractItem | AddressItem | TokenItem;
 
 export const search = async (
-  chainId: number,
+  chainRef: ChainRef,
   query: string
 ): Promise<SearchItem[]> => {
-  if (chainId !== lightlinkPegasus.id && chainId !== lightlinkPhoenix.id)
-    throw new Error("Unsupported chain");
+  const chain = resolveChainRef(chainRef);
+  if (!chain) throw new Error("Unsupported chain");
 
-  const explorer =
-    chainId === lightlinkPegasus.id
-      ? lightlinkPegasus.blockExplorers.default.url
-      : lightlinkPhoenix.blockExplorers.default.url;
+  const explorer = chain.explorerUrl;
   const apiUrl = explorer + "/api/v2/";
+
   const response = await fetch(apiUrl + "search?q=" + query);
   const data = (await response.json()) as any;
 

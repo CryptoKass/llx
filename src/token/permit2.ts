@@ -1,6 +1,12 @@
 import { encodeFunctionData, type Abi } from "viem";
 import type { PreparedTx } from "../common.js";
-import { getSupportedPublicClient, Pegasus, Phoenix } from "../chains.js";
+import {
+  getPublicClient,
+  Pegasus,
+  Phoenix,
+  resolveChainRef,
+  type ChainRef,
+} from "../chains.js";
 import { ensureAllowance } from "./approval.js";
 
 const Permit2ABI: Abi = [
@@ -30,16 +36,17 @@ const Permit2ABI: Abi = [
 ] as const;
 
 export function preparePermit2ApprovalTx(
-  chainId: number,
+  chainRef: ChainRef,
   token: `0x${string}`,
   target: `0x${string}`,
   amount: bigint,
   deadline: number
 ): PreparedTx {
-  const permit2 =
-    chainId == Phoenix.id
-      ? (Phoenix.permit2 as `0x${string}`)
-      : (Pegasus.permit2 as `0x${string}`);
+  const chain = resolveChainRef(chainRef);
+  if (!chain) throw new Error("Unsupported chain");
+  if (!chain.permit2) throw new Error("Permit2 not supported");
+
+  const permit2 = chain.permit2 as `0x${string}`;
 
   return {
     to: permit2,
@@ -53,17 +60,17 @@ export function preparePermit2ApprovalTx(
 }
 
 export async function fetchPermit2Allowance(
-  chainId: number,
+  chainRef: ChainRef,
   owner: `0x${string}`,
   token: `0x${string}`,
   spender: `0x${string}`
 ) {
-  const publicClient = getSupportedPublicClient(chainId);
+  const publicClient = getPublicClient(chainRef);
 
-  const permit2 =
-    chainId == Phoenix.id
-      ? (Phoenix.permit2 as `0x${string}`)
-      : (Pegasus.permit2 as `0x${string}`);
+  const chain = resolveChainRef(chainRef);
+  if (!chain) throw new Error("Unsupported chain");
+
+  const permit2 = chain.permit2 as `0x${string}`;
 
   return (await publicClient.readContract({
     address: permit2,
@@ -76,7 +83,7 @@ export async function fetchPermit2Allowance(
 const ONE_DAY_IN_SECONDS = 86400;
 
 export async function ensurePermit2Allowance(
-  chainId: number,
+  chainRef: ChainRef,
   token: `0x${string}`,
   owner: `0x${string}`,
   spender: `0x${string}`,
@@ -84,23 +91,31 @@ export async function ensurePermit2Allowance(
 ) {
   const txs: PreparedTx[] = [];
 
-  const permit2 =
-    chainId == Phoenix.id
-      ? (Phoenix.permit2 as `0x${string}`)
-      : (Pegasus.permit2 as `0x${string}`);
+  const chain = resolveChainRef(chainRef);
+  if (!chain) throw new Error("Unsupported chain");
+  if (!chain.permit2) throw new Error("Permit2 not supported");
+
+  const permit2 = chain.permit2 as `0x${string}`;
 
   // Step 1. Ensure Permit2 has
-  txs.push(...(await ensureAllowance(chainId, token, owner, permit2, amount)));
+  txs.push(...(await ensureAllowance(chainRef, token, owner, permit2, amount)));
 
   // Step 2. Check if target is approved on Permit2
-  const allowance = await fetchPermit2Allowance(chainId, owner, token, spender);
+  const allowance = await fetchPermit2Allowance(
+    chainRef,
+    owner,
+    token,
+    spender
+  );
   if (allowance >= amount) {
     return txs;
   }
 
   // Step 3. Approve Permit2 on target
   const deadline = Math.floor(Date.now() / 1000) + ONE_DAY_IN_SECONDS;
-  txs.push(preparePermit2ApprovalTx(chainId, token, spender, amount, deadline));
+  txs.push(
+    preparePermit2ApprovalTx(chainRef, token, spender, amount, deadline)
+  );
 
   return txs;
 }

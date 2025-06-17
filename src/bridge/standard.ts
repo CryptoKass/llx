@@ -1,6 +1,6 @@
 import { encodeFunctionData, type Address } from "viem";
 import type { PreparedTx } from "../common.js";
-import { getChainById } from "../chains.js";
+import { getChainById, resolveChainRef, type ChainRef } from "../chains.js";
 
 const StandardBridgeABI = [
   {
@@ -30,12 +30,12 @@ interface StandardBridgeDepositParams {
 }
 
 export const prepareStandardBridgeETHDeposit = (
-  chainId: number,
+  chainRef: ChainRef,
   params: StandardBridgeDepositParams
 ) => {
   const txs: PreparedTx[] = [];
 
-  const chain = getChainById(chainId);
+  const chain = resolveChainRef(chainRef);
   if (!chain) throw new Error("Unsupported chain");
 
   const standardBridgeAddress =

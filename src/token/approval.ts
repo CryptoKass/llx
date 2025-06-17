@@ -1,6 +1,6 @@
 import { encodeFunctionData, type Abi } from "viem";
 import type { PreparedTx } from "../common.js";
-import { getSupportedPublicClient } from "../chains.js";
+import { getPublicClient, type ChainRef } from "../chains.js";
 
 const TokenABI: Abi = [
   {
@@ -42,12 +42,12 @@ export function prepareApprovalTx(
 }
 
 export async function fetchAllowance(
-  chainId: number,
+  chainRef: ChainRef,
   token: `0x${string}`,
   owner: `0x${string}`,
   spender: `0x${string}`
 ) {
-  const publicClient = getSupportedPublicClient(chainId);
+  const publicClient = getPublicClient(chainRef);
 
   return (await publicClient.readContract({
     address: token,
@@ -58,7 +58,7 @@ export async function fetchAllowance(
 }
 
 export async function ensureAllowance(
-  chainId: number,
+  chainRef: ChainRef,
   token: `0x${string}`,
   owner: `0x${string}`,
   spender: `0x${string}`,
@@ -66,7 +66,7 @@ export async function ensureAllowance(
 ) {
   const txs: PreparedTx[] = [];
 
-  const allowance = await fetchAllowance(chainId, token, owner, spender);
+  const allowance = await fetchAllowance(chainRef, token, owner, spender);
   if (allowance < amount) {
     txs.push(prepareApprovalTx(token, spender, amount));
   }

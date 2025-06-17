@@ -30,6 +30,7 @@
   },
   "devDependencies": {
     "@types/node": "^22.13.9",
+    "@viem/anvil": "^0.0.10",
     "ts-node": "^10.9.2",
     "tsup": "^8.3.6",
     "tsx": "^4.7.1",

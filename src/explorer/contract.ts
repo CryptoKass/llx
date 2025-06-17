@@ -1,5 +1,6 @@
 import type { Abi } from "viem";
 import { lightlinkPegasus, lightlinkPhoenix } from "viem/chains";
+import { resolveChainRef, type ChainRef } from "../chains.js";
 
 export interface BaseContract {
   is_verified?: boolean;
@@ -61,14 +62,11 @@ export interface VerifiedContract extends BaseContract {
 
 export type Contract = UnverifiedContract | VerifiedContract;
 
-export const getContractInfo = async (chainId: number, address: string) => {
-  if (chainId !== lightlinkPegasus.id && chainId !== lightlinkPhoenix.id)
-    throw new Error("Unsupported chain");
+export const getContractInfo = async (chainRef: ChainRef, address: string) => {
+  const chain = resolveChainRef(chainRef);
+  if (!chain) throw new Error("Unsupported chain");
 
-  const explorer =
-    chainId === lightlinkPegasus.id
-      ? lightlinkPegasus.blockExplorers.default.url
-      : lightlinkPhoenix.blockExplorers.default.url;
+  const explorer = chain.explorerUrl;
   const apiUrl = explorer + "/api/v2/";
 
   const response = await fetch(apiUrl + "smart-contracts/" + address);
@@ -77,8 +75,8 @@ export const getContractInfo = async (chainId: number, address: string) => {
   return data;
 };
 
-export const getContractAbi = async (chainId: number, address: string) => {
-  const contract = await getContractInfo(chainId, address);
+export const getContractAbi = async (chainRef: ChainRef, address: string) => {
+  const contract = await getContractInfo(chainRef, address);
   if (!contract.is_verified) {
     throw new Error("Contract is not verified");
   }

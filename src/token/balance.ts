@@ -1,5 +1,5 @@
 import type { Abi, Address } from "viem";
-import { getSupportedPublicClient } from "../chains.js";
+import { getPublicClient, type ChainRef } from "../chains.js";
 
 const TokenABI: Abi = [
   {
@@ -12,11 +12,11 @@ const TokenABI: Abi = [
 ] as const;
 
 export const fetchBalance = async (
-  chainId: number,
+  chainRef: ChainRef,
   token: Address,
   account: Address
 ) => {
-  const publicClient = getSupportedPublicClient(chainId);
+  const publicClient = getPublicClient(chainRef);
 
   return (await publicClient.readContract({
     address: token,

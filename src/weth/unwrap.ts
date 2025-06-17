@@ -1,5 +1,5 @@
 import { encodeFunctionData, type Abi } from "viem";
-import { Pegasus, Phoenix } from "../chains.js";
+import { resolveChainRef, type ChainRef } from "../chains.js";
 import type { PreparedTx } from "../common.js";
 
 const WETH_ABI: Abi = [
@@ -14,13 +14,14 @@ const WETH_ABI: Abi = [
 ] as const;
 
 export const prepareUnwrapTx = (
-  chainId: number,
+  chainRef: ChainRef,
   amount: bigint
 ): PreparedTx => {
-  const wethAddress =
-    chainId == Phoenix.id
-      ? (Phoenix.weth as `0x${string}`)
-      : (Pegasus.weth as `0x${string}`);
+  const chain = resolveChainRef(chainRef);
+  if (!chain) throw new Error("Unsupported chain");
+  if (!chain.weth) throw new Error("WETH not supported");
+
+  const wethAddress = chain.weth as `0x${string}`;
 
   return {
     to: wethAddress,
