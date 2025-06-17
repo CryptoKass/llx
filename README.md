@@ -15,7 +15,7 @@ LLX simplifies interacting with the main dapps on the LightLink network. Its pla
 ## Installation
 
 ```bash
-npm install --save https://github.com/CryptoKass/llx
+npm install --save @cryptokass/llx
 ```
 
 ## Getting Started

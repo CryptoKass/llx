@@ -681,7 +681,7 @@ var prepareStandardBridgeETHDeposit = (chainRef, params) => {
 };
 
 // src/bridge/bridge.ts
-var bridge = (chainRef, params) => {
+var prepareBridgeTransfer = (chainRef, params) => {
   if (params.token === "eth") {
     return prepareStandardBridgeETHDeposit(chainRef, params);
   }
@@ -698,7 +698,6 @@ var weth = {
   prepareUnwrapTx
 };
 export {
-  bridge,
   ensureAllowance,
   ensurePermit2Allowance,
   fetchAllowance,
@@ -711,6 +710,7 @@ export {
   fetchTokenTotalSupply,
   getContractInfo,
   prepareApprovalTx,
+  prepareBridgeTransfer,
   preparePermit2ApprovalTx,
   resolveEnsDomain,
   resolveLLDomain,

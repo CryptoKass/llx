@@ -20,7 +20,6 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 // src/index.ts
 var index_exports = {};
 __export(index_exports, {
-  bridge: () => bridge,
   ensureAllowance: () => ensureAllowance,
   ensurePermit2Allowance: () => ensurePermit2Allowance,
   fetchAllowance: () => fetchAllowance,
@@ -33,6 +32,7 @@ __export(index_exports, {
   fetchTokenTotalSupply: () => fetchTokenTotalSupply,
   getContractInfo: () => getContractInfo,
   prepareApprovalTx: () => prepareApprovalTx,
+  prepareBridgeTransfer: () => prepareBridgeTransfer,
   preparePermit2ApprovalTx: () => preparePermit2ApprovalTx,
   resolveEnsDomain: () => resolveEnsDomain,
   resolveLLDomain: () => resolveLLDomain,
@@ -710,7 +710,7 @@ var prepareStandardBridgeETHDeposit = (chainRef, params) => {
 };
 
 // src/bridge/bridge.ts
-var bridge = (chainRef, params) => {
+var prepareBridgeTransfer = (chainRef, params) => {
   if (params.token === "eth") {
     return prepareStandardBridgeETHDeposit(chainRef, params);
   }
@@ -728,7 +728,6 @@ var weth = {
 };
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
-  bridge,
   ensureAllowance,
   ensurePermit2Allowance,
   fetchAllowance,
@@ -741,6 +740,7 @@ var weth = {
   fetchTokenTotalSupply,
   getContractInfo,
   prepareApprovalTx,
+  prepareBridgeTransfer,
   preparePermit2ApprovalTx,
   resolveEnsDomain,
   resolveLLDomain,

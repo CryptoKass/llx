@@ -192,7 +192,7 @@ interface BridgeParams {
     bridgeAddress?: Address;
     minGasLimit?: number;
 }
-declare const bridge: (chainRef: ChainRef, params: BridgeParams) => PreparedTx[];
+declare const prepareBridgeTransfer: (chainRef: ChainRef, params: BridgeParams) => PreparedTx[];
 
 declare const swap: {
     quoteExactInput: (chainRef: ChainRef, params: QuoteExactInputSingleParams) => Promise<QuoteResult>;
@@ -203,4 +203,4 @@ declare const weth: {
     prepareUnwrapTx: (chainRef: ChainRef, amount: bigint) => PreparedTx;
 };
 
-export { bridge, ensureAllowance, ensurePermit2Allowance, fetchAllowance, fetchBalance, fetchPermit2Allowance, fetchTokenDecimals, fetchTokenInfo, fetchTokenName, fetchTokenSymbol, fetchTokenTotalSupply, getContractInfo, prepareApprovalTx, preparePermit2ApprovalTx, resolveEnsDomain, resolveLLDomain, search, swap, weth };
+export { ensureAllowance, ensurePermit2Allowance, fetchAllowance, fetchBalance, fetchPermit2Allowance, fetchTokenDecimals, fetchTokenInfo, fetchTokenName, fetchTokenSymbol, fetchTokenTotalSupply, getContractInfo, prepareApprovalTx, prepareBridgeTransfer, preparePermit2ApprovalTx, resolveEnsDomain, resolveLLDomain, search, swap, weth };
