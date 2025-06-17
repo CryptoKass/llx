@@ -2,6 +2,14 @@
 
 LLX simplifies interacting with the main dapps on the LightLink network. Its platform agnostic and can be used with ethers, wagmi, viem, etc.
 
+## Features
+
+- Token Actions: fetch token info, balance, allowance, permit2 allowance
+- Swaps: quote, swap
+- Domain resolution: resolve ENS domain to address
+- Allowance and Permit2: prepare and execute allowance and permit2 transactions
+- Bridge: bridge ETH between L1 (Ethereum, Sepolia) and L2 (Phoenix, Pegasus)
+
 ## Installation
 
 ```bash
@@ -105,4 +113,17 @@ for (const tx of txs) {
     hash,
   });
 }
+```
+
+## Bridge
+
+Only ETH bridging is supported for now.
+
+```ts
+import { bridge } from "llx";
+import { Phoenix } from "llx/chains";
+
+const txs = await bridge(Phoenix.id, {
+  amount: AMOUNT,
+});
 ```

@@ -1,4 +1,4 @@
-import { Abi, Address } from 'viem';
+import { Address, Abi } from 'viem';
 
 interface PreparedTx {
     to: `0x${string}`;
@@ -8,6 +8,27 @@ interface PreparedTx {
     gasPrice?: bigint;
     description?: string;
 }
+
+interface Network {
+    id: number;
+    name: string;
+    rpcUrl: string;
+    explorerUrl: string;
+    uniswapv3?: {
+        quoter: string;
+        router: string;
+        factory: string;
+    };
+    bridge?: {
+        standardBridge?: Address;
+    };
+    ens?: {
+        resolver: string;
+    };
+    permit2: string;
+    weth: string;
+}
+type ChainRef = number | Network;
 
 interface SwapExactInputParams {
     tokenIn: `0x${string}`;
@@ -82,7 +103,7 @@ interface TokenItem extends BaseItem {
     total_supply: string;
 }
 type SearchItem = EnsDomainItem | ContractItem | AddressItem | TokenItem;
-declare const search: (chainId: number, query: string) => Promise<SearchItem[]>;
+declare const search: (chainRef: ChainRef, query: string) => Promise<SearchItem[]>;
 
 interface BaseContract {
     is_verified?: boolean;
@@ -139,39 +160,47 @@ interface VerifiedContract extends BaseContract {
     constructor_args: string;
 }
 type Contract = UnverifiedContract | VerifiedContract;
-declare const getContractInfo: (chainId: number, address: string) => Promise<Contract>;
+declare const getContractInfo: (chainRef: ChainRef, address: string) => Promise<Contract>;
 
 declare const resolveEnsDomain: (name: string) => Promise<`0x${string}`>;
 declare const resolveLLDomain: (normalizedDomain: string) => Promise<`0x${string}`>;
 
-declare const fetchTokenName: (chainId: number, address: Address) => Promise<string>;
-declare const fetchTokenSymbol: (chainId: number, address: Address) => Promise<string>;
-declare const fetchTokenDecimals: (chainId: number, address: Address) => Promise<number>;
-declare const fetchTokenTotalSupply: (chainId: number, address: Address) => Promise<bigint>;
-declare const fetchTokenInfo: (chainId: number, address: Address) => Promise<{
+declare const fetchTokenName: (chainRef: ChainRef, address: Address) => Promise<string>;
+declare const fetchTokenSymbol: (chainRef: ChainRef, address: Address) => Promise<string>;
+declare const fetchTokenDecimals: (chainRef: ChainRef, address: Address) => Promise<number>;
+declare const fetchTokenTotalSupply: (chainRef: ChainRef, address: Address) => Promise<bigint>;
+declare const fetchTokenInfo: (chainRef: ChainRef, address: Address) => Promise<{
     name: string;
     symbol: string;
     decimals: number;
     totalSupply: bigint;
 }>;
 
-declare const fetchBalance: (chainId: number, token: Address, account: Address) => Promise<bigint>;
+declare const fetchBalance: (chainRef: ChainRef, token: Address, account: Address) => Promise<bigint>;
 
 declare function prepareApprovalTx(token: `0x${string}`, target: `0x${string}`, amount: bigint): PreparedTx;
-declare function fetchAllowance(chainId: number, token: `0x${string}`, owner: `0x${string}`, spender: `0x${string}`): Promise<bigint>;
-declare function ensureAllowance(chainId: number, token: `0x${string}`, owner: `0x${string}`, spender: `0x${string}`, amount: bigint): Promise<PreparedTx[]>;
+declare function fetchAllowance(chainRef: ChainRef, token: `0x${string}`, owner: `0x${string}`, spender: `0x${string}`): Promise<bigint>;
+declare function ensureAllowance(chainRef: ChainRef, token: `0x${string}`, owner: `0x${string}`, spender: `0x${string}`, amount: bigint): Promise<PreparedTx[]>;
 
-declare function preparePermit2ApprovalTx(chainId: number, token: `0x${string}`, target: `0x${string}`, amount: bigint, deadline: number): PreparedTx;
-declare function fetchPermit2Allowance(chainId: number, owner: `0x${string}`, token: `0x${string}`, spender: `0x${string}`): Promise<bigint>;
-declare function ensurePermit2Allowance(chainId: number, token: `0x${string}`, owner: `0x${string}`, spender: `0x${string}`, amount: bigint): Promise<PreparedTx[]>;
+declare function preparePermit2ApprovalTx(chainRef: ChainRef, token: `0x${string}`, target: `0x${string}`, amount: bigint, deadline: number): PreparedTx;
+declare function fetchPermit2Allowance(chainRef: ChainRef, owner: `0x${string}`, token: `0x${string}`, spender: `0x${string}`): Promise<bigint>;
+declare function ensurePermit2Allowance(chainRef: ChainRef, token: `0x${string}`, owner: `0x${string}`, spender: `0x${string}`, amount: bigint): Promise<PreparedTx[]>;
 
-declare const elektrik: {
-    quoteExactInput: (chainId: number, params: QuoteExactInputSingleParams) => Promise<QuoteResult>;
-    swapExactInput: (chainId: number, sender: `0x${string}`, params: SwapExactInputParams) => Promise<PreparedTx[]>;
+interface BridgeParams {
+    amount: bigint;
+    token?: "eth" | Address;
+    bridgeAddress?: Address;
+    minGasLimit?: number;
+}
+declare const bridge: (chainRef: ChainRef, params: BridgeParams) => PreparedTx[];
+
+declare const swap: {
+    quoteExactInput: (chainRef: ChainRef, params: QuoteExactInputSingleParams) => Promise<QuoteResult>;
+    swapExactInput: (chainRef: ChainRef, sender: `0x${string}`, params: SwapExactInputParams) => Promise<PreparedTx[]>;
 };
 declare const weth: {
-    prepareWrapTx: (chainId: number, amount: bigint) => PreparedTx;
-    prepareUnwrapTx: (chainId: number, amount: bigint) => PreparedTx;
+    prepareWrapTx: (chainRef: ChainRef, amount: bigint) => PreparedTx;
+    prepareUnwrapTx: (chainRef: ChainRef, amount: bigint) => PreparedTx;
 };
 
-export { elektrik, ensureAllowance, ensurePermit2Allowance, fetchAllowance, fetchBalance, fetchPermit2Allowance, fetchTokenDecimals, fetchTokenInfo, fetchTokenName, fetchTokenSymbol, fetchTokenTotalSupply, getContractInfo, prepareApprovalTx, preparePermit2ApprovalTx, resolveEnsDomain, resolveLLDomain, search, weth };
+export { bridge, ensureAllowance, ensurePermit2Allowance, fetchAllowance, fetchBalance, fetchPermit2Allowance, fetchTokenDecimals, fetchTokenInfo, fetchTokenName, fetchTokenSymbol, fetchTokenTotalSupply, getContractInfo, prepareApprovalTx, preparePermit2ApprovalTx, resolveEnsDomain, resolveLLDomain, search, swap, weth };

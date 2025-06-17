@@ -30,3 +30,5 @@ export {
   preparePermit2ApprovalTx,
   ensurePermit2Allowance,
 } from "./token/permit2.js";
+
+export { bridge } from "./bridge/bridge.js";

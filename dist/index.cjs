@@ -20,7 +20,7 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 // src/index.ts
 var index_exports = {};
 __export(index_exports, {
-  elektrik: () => elektrik,
+  bridge: () => bridge,
   ensureAllowance: () => ensureAllowance,
   ensurePermit2Allowance: () => ensurePermit2Allowance,
   fetchAllowance: () => fetchAllowance,
@@ -37,11 +37,12 @@ __export(index_exports, {
   resolveEnsDomain: () => resolveEnsDomain,
   resolveLLDomain: () => resolveLLDomain,
   search: () => search,
+  swap: () => swap,
   weth: () => weth
 });
 module.exports = __toCommonJS(index_exports);
 
-// src/elektrik/quote.ts
+// src/swap/quote.ts
 var import_viem2 = require("viem");
 
 // src/chains.ts
@@ -49,25 +50,38 @@ var import_viem = require("viem");
 var import_chains = require("viem/chains");
 var CONTRACTS = {
   lightlink: {
-    UNIVERSAL_ROUTER: "0x6B3ea22C757BbF9C78CcAaa2eD9562b57001720B",
-    UNISWAP_V3_FACTORY_ADDRESS: "0xEE6099234bbdC793a43676D98Eb6B589ca7112D7",
-    UNISWAP_V3_QUOTER_ADDRESS: "0x243551e321Dac40508c22de2E00aBECF17F764b5"
+    UNIVERSAL_ROUTER: "0x738fD6d10bCc05c230388B4027CAd37f82fe2AF2",
+    UNISWAP_V3_FACTORY_ADDRESS: "0xcb2436774C3e191c85056d248EF4260ce5f27A9D",
+    UNISWAP_V3_QUOTER_ADDRESS: "0x5911cB3633e764939edc2d92b7e1ad375Bb57649",
+    STANDARD_BRIDGE: "0x4200000000000000000000000000000000000010"
   },
   lightlinkTestnet: {
     UNIVERSAL_ROUTER: "0x742d315e929B188e3F05FbC49774474a627b0502",
     UNISWAP_V3_FACTORY_ADDRESS: "0x7A5531FC6628e55f22ED2C6AD015B75948fC36F4",
-    UNISWAP_V3_QUOTER_ADDRESS: "0x97e7D916aa065eADA70B317677fb8a4A5504F51f"
+    UNISWAP_V3_QUOTER_ADDRESS: "0x97e7D916aa065eADA70B317677fb8a4A5504F51f",
+    STANDARD_BRIDGE: "0x4200000000000000000000000000000000000010"
+  },
+  ethereum: {
+    LIGHTLINK_PORTAL: "0x0000000000000000000000000000000000000000",
+    STANDARD_BRIDGE: "0xc7a7199bb5F0aA7B54eca90fC793Ec83E5683b0c"
+  },
+  ethereumSepolia: {
+    LIGHTLINK_PORTAL: "0x0000000000000000000000000000000000000000",
+    STANDARD_BRIDGE: "0xc7206C8d1F5558a7C899A427bf26AfA377Ad0afA"
   }
 };
 var Phoenix = {
   id: 1890,
   name: "Lightlink Phoenix",
-  rpcUrl: process.env.LIGHTLINK_MAINNET_RPC_URL || "",
+  rpcUrl: process.env.LIGHTLINK_MAINNET_RPC_URL || "https://replicator-01.phoenix.lightlink.io/rpc/v1",
   explorerUrl: "https://phoenix.lightlink.io",
-  elektrik: {
+  uniswapv3: {
     quoter: CONTRACTS.lightlink.UNISWAP_V3_QUOTER_ADDRESS,
     router: CONTRACTS.lightlink.UNIVERSAL_ROUTER,
     factory: CONTRACTS.lightlink.UNISWAP_V3_FACTORY_ADDRESS
+  },
+  bridge: {
+    standardBridge: CONTRACTS.lightlink.STANDARD_BRIDGE
   },
   permit2: "0xB952578f3520EE8Ea45b7914994dcf4702cEe578",
   weth: "0x7EbeF2A4b1B09381Ec5B9dF8C5c6f2dBECA59c73"
@@ -75,28 +89,87 @@ var Phoenix = {
 var Pegasus = {
   id: 1891,
   name: "Lightlink Pegasus",
-  rpcUrl: process.env.LIGHTLINK_TESTNET_RPC_URL || "",
+  rpcUrl: process.env.LIGHTLINK_TESTNET_RPC_URL || "https://replicator-01.pegasus.lightlink.io/rpc/v1",
   explorerUrl: "https://pegasus.lightlink.io",
-  elektrik: {
+  uniswapv3: {
     quoter: CONTRACTS.lightlinkTestnet.UNISWAP_V3_QUOTER_ADDRESS,
     router: CONTRACTS.lightlinkTestnet.UNIVERSAL_ROUTER,
     factory: CONTRACTS.lightlinkTestnet.UNISWAP_V3_FACTORY_ADDRESS
   },
+  bridge: {
+    standardBridge: CONTRACTS.lightlinkTestnet.STANDARD_BRIDGE
+  },
   permit2: "0x65b0dE86Df48d72aCdaF7E548b5C836663A0a4fa",
   weth: "0xF42991f02C07AB66cFEa282E7E482382aEB85461"
 };
-var getSupportedPublicClient = (id) => {
-  if (id != Phoenix.id && id != Pegasus.id) {
-    throw new Error("Unsupported chain");
+var Ethereum = {
+  id: 1,
+  name: "Ethereum",
+  rpcUrl: process.env.ETHEREUM_MAINNET_RPC_URL || "https://ethereum-rpc.publicnode.com",
+  explorerUrl: "https://etherscan.io",
+  bridge: {
+    standardBridge: CONTRACTS.ethereum.STANDARD_BRIDGE
+  },
+  permit2: "0x000000000022D473030F116dDEE9F6B43aC78BA3",
+  weth: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
+};
+var Sepolia = {
+  id: 11155111,
+  name: "Ethereum Sepolia",
+  rpcUrl: process.env.ETHEREUM_SEPOLIA_RPC_URL || "https://ethereum-sepolia-rpc.publicnode.com",
+  explorerUrl: "https://sepolia.etherscan.io",
+  bridge: {
+    standardBridge: CONTRACTS.ethereumSepolia.STANDARD_BRIDGE
+  },
+  permit2: "0x000000000022D473030F116dDEE9F6B43aC78BA3",
+  weth: "0x7b79995e5f793A07Bc00c21412e50Ecae098E7f9"
+};
+var chains = [Phoenix, Pegasus, Ethereum, Sepolia];
+var getChainById = (id) => {
+  return chains.find((chain) => chain.id == id);
+};
+var getPublicClient = (chainRef) => {
+  const chain = resolveChainRef(chainRef);
+  if (!chain) throw new Error("Unsupported chain");
+  let viemChain;
+  switch (chain.id) {
+    case Phoenix.id:
+      viemChain = import_chains.lightlinkPhoenix;
+      break;
+    case Pegasus.id:
+      viemChain = import_chains.lightlinkPegasus;
+      break;
+    case Ethereum.id:
+      viemChain = import_chains.mainnet;
+      break;
+    case Sepolia.id:
+      viemChain = import_chains.sepolia;
+      break;
+    default:
+      viemChain = {
+        id: chain.id,
+        name: chain.name,
+        nativeCurrency: import_chains.mainnet.nativeCurrency,
+        rpcUrls: { default: { http: [chain.rpcUrl] } },
+        blockExplorers: {
+          default: { name: "explorer", url: chain.explorerUrl }
+        },
+        testnet: false
+      };
   }
-  const chain = id == Phoenix.id ? import_chains.lightlinkPhoenix : import_chains.lightlinkPegasus;
   return (0, import_viem.createPublicClient)({
-    chain,
+    chain: viemChain,
     transport: (0, import_viem.http)()
   });
 };
+var resolveChainRef = (ref) => {
+  if (typeof ref === "number") {
+    return getChainById(ref);
+  }
+  return ref;
+};
 
-// src/elektrik/quote.ts
+// src/swap/quote.ts
 var QuoterABI = [
   {
     inputs: [
@@ -136,9 +209,12 @@ var QuoterABI = [
     type: "function"
   }
 ];
-var quoteExactInput = async (chainId, params) => {
-  const client = getSupportedPublicClient(chainId);
-  const quoterContractAddress = chainId == Phoenix.id ? Phoenix.elektrik.quoter : Pegasus.elektrik.quoter;
+var quoteExactInput = async (chainRef, params) => {
+  const chain = resolveChainRef(chainRef);
+  if (!chain) throw new Error("Unsupported chain");
+  if (!chain.uniswapv3) throw new Error("Uniswap V3 not supported");
+  const client = getPublicClient(chainRef);
+  const quoterContractAddress = chain.uniswapv3.quoter;
   return _quoteExactInput(client, quoterContractAddress, params);
 };
 var _quoteExactInput = async (client, quoterContractAddress, params) => {
@@ -178,7 +254,7 @@ var _quoteExactInput = async (client, quoterContractAddress, params) => {
   };
 };
 
-// src/elektrik/swap.ts
+// src/swap/swap.ts
 var import_viem5 = require("viem");
 
 // src/token/permit2.ts
@@ -219,8 +295,8 @@ function prepareApprovalTx(token, target, amount) {
     description: "Approving token to be spent by target"
   };
 }
-async function fetchAllowance(chainId, token, owner, spender) {
-  const publicClient = getSupportedPublicClient(chainId);
+async function fetchAllowance(chainRef, token, owner, spender) {
+  const publicClient = getPublicClient(chainRef);
   return await publicClient.readContract({
     address: token,
     abi: TokenABI,
@@ -228,9 +304,9 @@ async function fetchAllowance(chainId, token, owner, spender) {
     args: [owner, spender]
   });
 }
-async function ensureAllowance(chainId, token, owner, spender, amount) {
+async function ensureAllowance(chainRef, token, owner, spender, amount) {
   const txs = [];
-  const allowance = await fetchAllowance(chainId, token, owner, spender);
+  const allowance = await fetchAllowance(chainRef, token, owner, spender);
   if (allowance < amount) {
     txs.push(prepareApprovalTx(token, spender, amount));
   }
@@ -263,8 +339,11 @@ var Permit2ABI = [
     type: "function"
   }
 ];
-function preparePermit2ApprovalTx(chainId, token, target, amount, deadline) {
-  const permit2 = chainId == Phoenix.id ? Phoenix.permit2 : Pegasus.permit2;
+function preparePermit2ApprovalTx(chainRef, token, target, amount, deadline) {
+  const chain = resolveChainRef(chainRef);
+  if (!chain) throw new Error("Unsupported chain");
+  if (!chain.permit2) throw new Error("Permit2 not supported");
+  const permit2 = chain.permit2;
   return {
     to: permit2,
     data: (0, import_viem4.encodeFunctionData)({
@@ -275,9 +354,11 @@ function preparePermit2ApprovalTx(chainId, token, target, amount, deadline) {
     description: "Using Permit2 to approve the target to spend the token"
   };
 }
-async function fetchPermit2Allowance(chainId, owner, token, spender) {
-  const publicClient = getSupportedPublicClient(chainId);
-  const permit2 = chainId == Phoenix.id ? Phoenix.permit2 : Pegasus.permit2;
+async function fetchPermit2Allowance(chainRef, owner, token, spender) {
+  const publicClient = getPublicClient(chainRef);
+  const chain = resolveChainRef(chainRef);
+  if (!chain) throw new Error("Unsupported chain");
+  const permit2 = chain.permit2;
   return await publicClient.readContract({
     address: permit2,
     abi: Permit2ABI,
@@ -286,20 +367,30 @@ async function fetchPermit2Allowance(chainId, owner, token, spender) {
   });
 }
 var ONE_DAY_IN_SECONDS = 86400;
-async function ensurePermit2Allowance(chainId, token, owner, spender, amount) {
+async function ensurePermit2Allowance(chainRef, token, owner, spender, amount) {
   const txs = [];
-  const permit2 = chainId == Phoenix.id ? Phoenix.permit2 : Pegasus.permit2;
-  txs.push(...await ensureAllowance(chainId, token, owner, permit2, amount));
-  const allowance = await fetchPermit2Allowance(chainId, owner, token, spender);
+  const chain = resolveChainRef(chainRef);
+  if (!chain) throw new Error("Unsupported chain");
+  if (!chain.permit2) throw new Error("Permit2 not supported");
+  const permit2 = chain.permit2;
+  txs.push(...await ensureAllowance(chainRef, token, owner, permit2, amount));
+  const allowance = await fetchPermit2Allowance(
+    chainRef,
+    owner,
+    token,
+    spender
+  );
   if (allowance >= amount) {
     return txs;
   }
   const deadline = Math.floor(Date.now() / 1e3) + ONE_DAY_IN_SECONDS;
-  txs.push(preparePermit2ApprovalTx(chainId, token, spender, amount, deadline));
+  txs.push(
+    preparePermit2ApprovalTx(chainRef, token, spender, amount, deadline)
+  );
   return txs;
 }
 
-// src/elektrik/swap.ts
+// src/swap/swap.ts
 var SWAP_EXACT_IN = "0x00";
 var UniversalRouterABI = [
   {
@@ -313,14 +404,17 @@ var UniversalRouterABI = [
     type: "function"
   }
 ];
-var prepareSwapExactInput = async (chainId, sender, params) => {
+var prepareSwapExactInput = async (chainRef, sender, params) => {
   if (params.slippage < 0 || params.slippage > 1)
     throw new Error("Slippage must be between 0 and 1");
   const txs = [];
-  const universalRouterAddress = chainId == Phoenix.id ? Phoenix.elektrik.router : Pegasus.elektrik.router;
+  const chain = resolveChainRef(chainRef);
+  if (!chain) throw new Error("Unsupported chain");
+  if (!chain.uniswapv3) throw new Error("Uniswap V3 not supported");
+  const universalRouterAddress = chain.uniswapv3.router;
   txs.push(
     ...await ensurePermit2Allowance(
-      chainId,
+      chain.id,
       params.tokenIn,
       sender,
       universalRouterAddress,
@@ -357,9 +451,11 @@ var prepareSwapExactInput = async (chainId, sender, params) => {
 };
 
 // src/weth/wrap.ts
-var import_zksync = require("viem/zksync");
-var prepareWrapTx = (chainId, amount) => {
-  const wethAddress = chainId == Phoenix.id ? Phoenix.weth : Pegasus.weth;
+var prepareWrapTx = (chainRef, amount) => {
+  const chain = resolveChainRef(chainRef);
+  if (!chain) throw new Error("Unsupported chain");
+  if (!chain.weth) throw new Error("WETH not supported");
+  const wethAddress = chain.weth;
   return {
     to: wethAddress,
     data: "0x",
@@ -380,8 +476,11 @@ var WETH_ABI = [
     type: "function"
   }
 ];
-var prepareUnwrapTx = (chainId, amount) => {
-  const wethAddress = chainId == Phoenix.id ? Phoenix.weth : Pegasus.weth;
+var prepareUnwrapTx = (chainRef, amount) => {
+  const chain = resolveChainRef(chainRef);
+  if (!chain) throw new Error("Unsupported chain");
+  if (!chain.weth) throw new Error("WETH not supported");
+  const wethAddress = chain.weth;
   return {
     to: wethAddress,
     data: (0, import_viem6.encodeFunctionData)({
@@ -395,10 +494,10 @@ var prepareUnwrapTx = (chainId, amount) => {
 
 // src/explorer/search.ts
 var import_chains8 = require("viem/chains");
-var search = async (chainId, query) => {
-  if (chainId !== import_chains8.lightlinkPegasus.id && chainId !== import_chains8.lightlinkPhoenix.id)
-    throw new Error("Unsupported chain");
-  const explorer = chainId === import_chains8.lightlinkPegasus.id ? import_chains8.lightlinkPegasus.blockExplorers.default.url : import_chains8.lightlinkPhoenix.blockExplorers.default.url;
+var search = async (chainRef, query) => {
+  const chain = resolveChainRef(chainRef);
+  if (!chain) throw new Error("Unsupported chain");
+  const explorer = chain.explorerUrl;
   const apiUrl = explorer + "/api/v2/";
   const response = await fetch(apiUrl + "search?q=" + query);
   const data = await response.json();
@@ -406,11 +505,11 @@ var search = async (chainId, query) => {
 };
 
 // src/explorer/contract.ts
-var import_chains9 = require("viem/chains");
-var getContractInfo = async (chainId, address) => {
-  if (chainId !== import_chains9.lightlinkPegasus.id && chainId !== import_chains9.lightlinkPhoenix.id)
-    throw new Error("Unsupported chain");
-  const explorer = chainId === import_chains9.lightlinkPegasus.id ? import_chains9.lightlinkPegasus.blockExplorers.default.url : import_chains9.lightlinkPhoenix.blockExplorers.default.url;
+var import_chains10 = require("viem/chains");
+var getContractInfo = async (chainRef, address) => {
+  const chain = resolveChainRef(chainRef);
+  if (!chain) throw new Error("Unsupported chain");
+  const explorer = chain.explorerUrl;
   const apiUrl = explorer + "/api/v2/";
   const response = await fetch(apiUrl + "smart-contracts/" + address);
   const data = await response.json();
@@ -421,7 +520,7 @@ var getContractInfo = async (chainId, address) => {
 var import_core = require("@web3-name-sdk/core");
 var import_utils = require("@web3-name-sdk/core/utils");
 var import_viem7 = require("viem");
-var import_chains10 = require("viem/chains");
+var import_chains12 = require("viem/chains");
 var import_ens = require("viem/ens");
 var ENSRegistryABI = [
   {
@@ -457,7 +556,7 @@ var resolveLLDomain = async (normalizedDomain) => {
   const nameHash = (0, import_utils.tldNamehash)(normalizedDomain, LL_IDENTIFIER);
   const publicClient = (0, import_viem7.createPublicClient)({
     transport: (0, import_viem7.http)(),
-    chain: import_chains10.lightlinkPhoenix
+    chain: import_chains12.lightlinkPhoenix
   });
   const resolver = await publicClient.readContract({
     address: LL_REGISTRY_ADDRESS,
@@ -505,8 +604,8 @@ var TokenABI2 = [
     outputs: [{ type: "uint256" }]
   }
 ];
-var fetchTokenName = async (chainId, address) => {
-  const publicClient = getSupportedPublicClient(chainId);
+var fetchTokenName = async (chainRef, address) => {
+  const publicClient = getPublicClient(chainRef);
   const name = await publicClient.readContract({
     address,
     abi: TokenABI2,
@@ -514,36 +613,36 @@ var fetchTokenName = async (chainId, address) => {
   });
   return name;
 };
-var fetchTokenSymbol = async (chainId, address) => {
-  const publicClient = getSupportedPublicClient(chainId);
+var fetchTokenSymbol = async (chainRef, address) => {
+  const publicClient = getPublicClient(chainRef);
   return await publicClient.readContract({
     address,
     abi: TokenABI2,
     functionName: "symbol"
   });
 };
-var fetchTokenDecimals = async (chainId, address) => {
-  const publicClient = getSupportedPublicClient(chainId);
+var fetchTokenDecimals = async (chainRef, address) => {
+  const publicClient = getPublicClient(chainRef);
   return await publicClient.readContract({
     address,
     abi: TokenABI2,
     functionName: "decimals"
   });
 };
-var fetchTokenTotalSupply = async (chainId, address) => {
-  const publicClient = getSupportedPublicClient(chainId);
+var fetchTokenTotalSupply = async (chainRef, address) => {
+  const publicClient = getPublicClient(chainRef);
   return await publicClient.readContract({
     address,
     abi: TokenABI2,
     functionName: "totalSupply"
   });
 };
-var fetchTokenInfo = async (chainId, address) => {
+var fetchTokenInfo = async (chainRef, address) => {
   const [name, symbol, decimals, totalSupply] = await Promise.all([
-    fetchTokenName(chainId, address),
-    fetchTokenSymbol(chainId, address),
-    fetchTokenDecimals(chainId, address),
-    fetchTokenTotalSupply(chainId, address)
+    fetchTokenName(chainRef, address),
+    fetchTokenSymbol(chainRef, address),
+    fetchTokenDecimals(chainRef, address),
+    fetchTokenTotalSupply(chainRef, address)
   ]);
   return { name, symbol, decimals, totalSupply };
 };
@@ -558,8 +657,8 @@ var TokenABI3 = [
     stateMutability: "view"
   }
 ];
-var fetchBalance = async (chainId, token, account) => {
-  const publicClient = getSupportedPublicClient(chainId);
+var fetchBalance = async (chainRef, token, account) => {
+  const publicClient = getPublicClient(chainRef);
   return await publicClient.readContract({
     address: token,
     abi: TokenABI3,
@@ -568,8 +667,58 @@ var fetchBalance = async (chainId, token, account) => {
   });
 };
 
+// src/bridge/standard.ts
+var import_viem8 = require("viem");
+var StandardBridgeABI = [
+  {
+    inputs: [
+      {
+        internalType: "uint32",
+        name: "_minGasLimit",
+        type: "uint32"
+      },
+      {
+        internalType: "bytes",
+        name: "_extraData",
+        type: "bytes"
+      }
+    ],
+    name: "bridgeETH",
+    outputs: [],
+    stateMutability: "payable",
+    type: "function"
+  }
+];
+var prepareStandardBridgeETHDeposit = (chainRef, params) => {
+  const txs = [];
+  const chain = resolveChainRef(chainRef);
+  if (!chain) throw new Error("Unsupported chain");
+  const standardBridgeAddress = params.bridgeAddress ?? chain.bridge?.standardBridge;
+  if (!standardBridgeAddress) throw new Error("Standard bridge not found");
+  const encodedData = (0, import_viem8.encodeFunctionData)({
+    abi: StandardBridgeABI,
+    functionName: "bridgeETH",
+    args: [params.minGasLimit ?? 3e4, "0x"]
+  });
+  txs.push({
+    to: standardBridgeAddress,
+    data: encodedData,
+    value: params.amount,
+    description: "Bridge ETH"
+  });
+  return txs;
+};
+
+// src/bridge/bridge.ts
+var bridge = (chainRef, params) => {
+  if (params.token === "eth") {
+    return prepareStandardBridgeETHDeposit(chainRef, params);
+  }
+  throw new Error("Unsupported asset");
+};
+
 // src/index.ts
-var elektrik = {
+var swap = {
   quoteExactInput,
   swapExactInput: prepareSwapExactInput
 };
@@ -579,7 +728,7 @@ var weth = {
 };
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
-  elektrik,
+  bridge,
   ensureAllowance,
   ensurePermit2Allowance,
   fetchAllowance,
@@ -596,6 +745,7 @@ var weth = {
   resolveEnsDomain,
   resolveLLDomain,
   search,
+  swap,
   weth
 });
 //# sourceMappingURL=index.cjs.map
