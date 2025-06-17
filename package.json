@@ -1,6 +1,6 @@
 {
   "name": "@cryptokass/llx",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "LLX is a provider agnostic dev kit interacting with the main dapps on the LightLink network",
   "type": "module",
   "main": "./dist/index.cjs",
