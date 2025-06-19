@@ -1,5 +1,19 @@
-import { encodeFunctionData, type Address } from "viem";
-import { getChainById, resolveChainRef, type ChainRef } from "../chains.js";
+import {
+  decodeEventLog,
+  encodeFunctionData,
+  parseEventLogs,
+  keccak256,
+  encodePacked,
+  type Address,
+  type Hex,
+  type TransactionReceipt,
+} from "viem";
+import {
+  getChainById,
+  getPublicClient,
+  resolveChainRef,
+  type ChainRef,
+} from "../chains.js";
 import { ensureAllowance } from "../token/approval.js";
 import { writeContract } from "viem/actions";
 import type { PreparedTx } from "../common.js";
@@ -24,6 +38,19 @@ const L1ERC20PredicateABI = [
     stateMutability: "nonpayable",
     type: "function",
   },
+  //   event DepositToken(bytes message);
+  {
+    name: "DepositToken",
+    inputs: [
+      {
+        internalType: "bytes",
+        name: "message",
+        type: "bytes",
+      },
+    ],
+    outputs: [],
+    type: "event",
+  },
 ] as const;
 
 //  'function withdraw(address _l2Token, uint256 _amount) external',
@@ -45,6 +72,19 @@ const L2ERC20PredicateABI = [
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
+  },
+  //   event WithdrawToken(bytes message);
+  {
+    name: "WithdrawToken",
+    inputs: [
+      {
+        internalType: "bytes",
+        name: "message",
+        type: "bytes",
+      },
+    ],
+    outputs: [],
+    type: "event",
   },
 ] as const;
 
@@ -144,4 +184,80 @@ export const preparePoaBridgeDeposit = async (
 
   if (chain.isL2) return preparePoaBridgeToL2(chainRef, sender, params);
   return preparePoaBridgeToL1(chainRef, sender, params);
+};
+
+export const hasPoaBridgeLogs = (receipt: TransactionReceipt) => {
+  const l1Logs = parseEventLogs({
+    abi: L1ERC20PredicateABI,
+    logs: receipt.logs,
+  });
+  if (l1Logs.length > 0) return true;
+
+  const l2Logs = parseEventLogs({
+    abi: L2ERC20PredicateABI,
+    logs: receipt.logs,
+  });
+  return l2Logs.length > 0;
+};
+
+export const extractPoaBridgeToL2TransferID = async (
+  chainRef: ChainRef,
+  txHash: Hex
+) => {
+  const chain = resolveChainRef(chainRef);
+  if (!chain) throw new Error(`Chain ${chainRef} not found`);
+
+  const publicClient = getPublicClient(chainRef);
+  const receipt = await publicClient.getTransactionReceipt({ hash: txHash });
+  if (!receipt) throw new Error(`Transaction ${txHash} not found`);
+
+  // Parse logs to find DepositToken event
+  const logs = parseEventLogs({
+    abi: L1ERC20PredicateABI,
+    logs: receipt.logs,
+  });
+
+  // Find the DepositToken event
+  const depositEvent = logs.find((log) => log.eventName === "DepositToken");
+  if (!depositEvent)
+    throw new Error("DepositToken event not found in transaction logs");
+
+  // Extract the message from the event
+  const message = depositEvent.args.message as Hex;
+
+  // Get chain ID
+  const chainId = BigInt(chain.id);
+
+  // Calculate keccak256(abi.encodePacked(chainId, message))
+  const packed = encodePacked(["uint256", "bytes"], [chainId, message]);
+
+  return keccak256(packed);
+};
+
+export const extractPoaBridgeToL1TransferID = async (
+  chainRef: ChainRef,
+  txHash: Hex
+) => {
+  const chain = resolveChainRef(chainRef);
+  if (!chain) throw new Error(`Chain ${chainRef} not found`);
+
+  const publicClient = getPublicClient(chainRef);
+  const receipt = await publicClient.getTransactionReceipt({ hash: txHash });
+  if (!receipt) throw new Error(`Transaction ${txHash} not found`);
+
+  // Parse logs to find WithdrawToken event
+  const logs = parseEventLogs({
+    abi: L2ERC20PredicateABI,
+    logs: receipt.logs,
+  });
+
+  const withdrawEvent = logs.find((log) => log.eventName === "WithdrawToken");
+  if (!withdrawEvent)
+    throw new Error("WithdrawToken event not found in transaction logs");
+
+  const message = withdrawEvent.args.message as Hex;
+  const chainId = BigInt(chain.id);
+  const packed = encodePacked(["uint256", "bytes"], [chainId, message]);
+
+  return keccak256(packed);
 };
