@@ -8,14 +8,8 @@ import {
   type Hex,
   type TransactionReceipt,
 } from "viem";
-import {
-  getChainById,
-  getPublicClient,
-  resolveChainRef,
-  type ChainRef,
-} from "../chains.js";
+import { getPublicClient, resolveChainRef, type ChainRef } from "../chains.js";
 import { ensureAllowance } from "../token/approval.js";
-import { writeContract } from "viem/actions";
 import type { PreparedTx } from "../common.js";
 import type { BridgeParams } from "./bridge.js";
 
@@ -103,7 +97,8 @@ export const preparePoaBridgeToL2 = async (
   if (!chain) throw new Error(`Chain ${chainRef} not found`);
 
   // ensure contract address is defined
-  const l1ERC20Predicate = chain.bridge?.l1ERC20Predicate;
+  const l1ERC20Predicate =
+    params.bridgeAddress ?? chain.bridge?.l1ERC20Predicate;
   if (!l1ERC20Predicate) throw new Error(`L1 ERC20 Predicate not found`);
 
   // 1. Ensure allowance is set
@@ -145,7 +140,8 @@ export const preparePoaBridgeToL1 = async (
   if (!chain) throw new Error(`Chain ${chainRef} not found`);
 
   // ensure contract address is defined
-  const l2ERC20Predicate = chain.bridge?.l2ERC20Predicate;
+  const l2ERC20Predicate =
+    params.bridgeAddress ?? chain.bridge?.l2ERC20Predicate;
   if (!l2ERC20Predicate) throw new Error(`L2 ERC20 Predicate not found`);
 
   // 1. Ensure allowance is set

@@ -1,15 +1,14 @@
 import {
   encodeFunctionData,
-  type Address,
   type Hex,
   keccak256,
-  encodePacked,
   encodeAbiParameters,
   parseEventLogs,
   type TransactionReceipt,
 } from "viem";
 import type { PreparedTx } from "../common.js";
 import { getPublicClient, resolveChainRef, type ChainRef } from "../chains.js";
+import type { BridgeParams } from "./bridge.js";
 
 const StandardBridgeABI = [
   {
@@ -32,11 +31,7 @@ const StandardBridgeABI = [
   },
 ] as const;
 
-interface StandardBridgeDepositParams {
-  amount: bigint;
-  bridgeAddress?: Address;
-  minGasLimit?: number;
-}
+type StandardBridgeDepositParams = BridgeParams;
 
 export const prepareStandardBridgeETHDeposit = (
   chainRef: ChainRef,
