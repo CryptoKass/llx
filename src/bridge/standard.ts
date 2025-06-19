@@ -52,7 +52,7 @@ export const prepareStandardBridgeETHDeposit = (
     to: standardBridgeAddress,
     data: encodedData,
     value: params.amount,
-    description: "Bridge ETH",
+    description: "Bridge ETH using the standard bridge",
   });
 
   return txs;

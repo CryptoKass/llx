@@ -1,8 +1,9 @@
 import { prepareStandardBridgeETHDeposit } from "./standard.js";
 import type { Address } from "viem";
 import { type ChainRef } from "../chains.js";
+import { preparePoaBridgeDeposit } from "./poa.js";
 
-interface BridgeParams {
+export interface BridgeParams {
   amount: bigint;
   token?: "eth" | Address; // ETH or ERC20 Token address
   bridgeAddress?: Address;
@@ -11,11 +12,12 @@ interface BridgeParams {
 
 export const prepareBridgeTransfer = (
   chainRef: ChainRef,
+  sender: Address,
   params: BridgeParams
 ) => {
   if (params.token === "eth") {
     return prepareStandardBridgeETHDeposit(chainRef, params);
   }
 
-  throw new Error("Unsupported asset");
+  return preparePoaBridgeDeposit(chainRef, sender, params);
 };
