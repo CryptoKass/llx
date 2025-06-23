@@ -53,7 +53,8 @@ var Phoenix = {
     standardBridge: CONTRACTS.lightlink.STANDARD_BRIDGE,
     l2ERC20Predicate: CONTRACTS.lightlink.L2_ERC20_PREDICATE
   },
-  permit2: "0xB952578f3520EE8Ea45b7914994dcf4702cEe578",
+  // permit2: "0xB952578f3520EE8Ea45b7914994dcf4702cEe578",
+  permit2: "0x807f4e281b7a3b324825c64ca53c69f0b418de40",
   weth: "0x7EbeF2A4b1B09381Ec5B9dF8C5c6f2dBECA59c73"
 };
 var Pegasus = {
