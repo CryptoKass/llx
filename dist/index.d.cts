@@ -9,11 +9,12 @@ interface PreparedTx {
     description?: string;
 }
 
-interface Network {
+interface NetworkDef {
     id: number;
     name: string;
     rpcUrl: string;
     explorerUrl: string;
+    isL2: boolean;
     uniswapv3?: {
         quoter: string;
         router: string;
@@ -21,6 +22,8 @@ interface Network {
     };
     bridge?: {
         standardBridge?: Address;
+        l1ERC20Predicate?: Address;
+        l2ERC20Predicate?: Address;
     };
     ens?: {
         resolver: string;
@@ -28,7 +31,7 @@ interface Network {
     permit2: string;
     weth: string;
 }
-type ChainRef = number | Network;
+type ChainRef = number | NetworkDef;
 
 interface SwapExactInputParams {
     tokenIn: `0x${string}`;
@@ -192,7 +195,7 @@ interface BridgeParams {
     bridgeAddress?: Address;
     minGasLimit?: number;
 }
-declare const prepareBridgeTransfer: (chainRef: ChainRef, params: BridgeParams) => PreparedTx[];
+declare const prepareBridgeTransfer: (chainRef: ChainRef, sender: Address, params: BridgeParams) => PreparedTx[] | Promise<PreparedTx[]>;
 
 declare const swap: {
     quoteExactInput: (chainRef: ChainRef, params: QuoteExactInputSingleParams) => Promise<QuoteResult>;

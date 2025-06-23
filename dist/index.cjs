@@ -53,21 +53,25 @@ var CONTRACTS = {
     UNIVERSAL_ROUTER: "0x738fD6d10bCc05c230388B4027CAd37f82fe2AF2",
     UNISWAP_V3_FACTORY_ADDRESS: "0xcb2436774C3e191c85056d248EF4260ce5f27A9D",
     UNISWAP_V3_QUOTER_ADDRESS: "0x5911cB3633e764939edc2d92b7e1ad375Bb57649",
-    STANDARD_BRIDGE: "0x4200000000000000000000000000000000000010"
+    STANDARD_BRIDGE: "0x4200000000000000000000000000000000000010",
+    L2_ERC20_PREDICATE: "0x63105ee97BfB22Dfe23033b3b14A4F8FED121ee9"
   },
   lightlinkTestnet: {
     UNIVERSAL_ROUTER: "0x742d315e929B188e3F05FbC49774474a627b0502",
     UNISWAP_V3_FACTORY_ADDRESS: "0x7A5531FC6628e55f22ED2C6AD015B75948fC36F4",
     UNISWAP_V3_QUOTER_ADDRESS: "0x97e7D916aa065eADA70B317677fb8a4A5504F51f",
-    STANDARD_BRIDGE: "0x4200000000000000000000000000000000000010"
+    STANDARD_BRIDGE: "0x4200000000000000000000000000000000000010",
+    L2_ERC20_PREDICATE: "0xeCBb6206B0bA437EA01080662608b7d445fc7ec"
   },
   ethereum: {
     LIGHTLINK_PORTAL: "0x0000000000000000000000000000000000000000",
-    STANDARD_BRIDGE: "0xc7a7199bb5F0aA7B54eca90fC793Ec83E5683b0c"
+    STANDARD_BRIDGE: "0xc7a7199bb5F0aA7B54eca90fC793Ec83E5683b0c",
+    L1_ERC20_PREDICATE: "0x63105ee97BfB22Dfe23033b3b14A4F8FED121ee9"
   },
   ethereumSepolia: {
     LIGHTLINK_PORTAL: "0x0000000000000000000000000000000000000000",
-    STANDARD_BRIDGE: "0xc7206C8d1F5558a7C899A427bf26AfA377Ad0afA"
+    STANDARD_BRIDGE: "0xc7206C8d1F5558a7C899A427bf26AfA377Ad0afA",
+    L1_ERC20_PREDICATE: "0x3343DE004FB02522b01FDD2Fd383AEFB9DF77fE7"
   }
 };
 var Phoenix = {
@@ -75,13 +79,15 @@ var Phoenix = {
   name: "Lightlink Phoenix",
   rpcUrl: process.env.LIGHTLINK_MAINNET_RPC_URL || "https://replicator-01.phoenix.lightlink.io/rpc/v1",
   explorerUrl: "https://phoenix.lightlink.io",
+  isL2: true,
   uniswapv3: {
     quoter: CONTRACTS.lightlink.UNISWAP_V3_QUOTER_ADDRESS,
     router: CONTRACTS.lightlink.UNIVERSAL_ROUTER,
     factory: CONTRACTS.lightlink.UNISWAP_V3_FACTORY_ADDRESS
   },
   bridge: {
-    standardBridge: CONTRACTS.lightlink.STANDARD_BRIDGE
+    standardBridge: CONTRACTS.lightlink.STANDARD_BRIDGE,
+    l2ERC20Predicate: CONTRACTS.lightlink.L2_ERC20_PREDICATE
   },
   permit2: "0xB952578f3520EE8Ea45b7914994dcf4702cEe578",
   weth: "0x7EbeF2A4b1B09381Ec5B9dF8C5c6f2dBECA59c73"
@@ -91,13 +97,15 @@ var Pegasus = {
   name: "Lightlink Pegasus",
   rpcUrl: process.env.LIGHTLINK_TESTNET_RPC_URL || "https://replicator-01.pegasus.lightlink.io/rpc/v1",
   explorerUrl: "https://pegasus.lightlink.io",
+  isL2: true,
   uniswapv3: {
     quoter: CONTRACTS.lightlinkTestnet.UNISWAP_V3_QUOTER_ADDRESS,
     router: CONTRACTS.lightlinkTestnet.UNIVERSAL_ROUTER,
     factory: CONTRACTS.lightlinkTestnet.UNISWAP_V3_FACTORY_ADDRESS
   },
   bridge: {
-    standardBridge: CONTRACTS.lightlinkTestnet.STANDARD_BRIDGE
+    standardBridge: CONTRACTS.lightlinkTestnet.STANDARD_BRIDGE,
+    l2ERC20Predicate: CONTRACTS.lightlinkTestnet.L2_ERC20_PREDICATE
   },
   permit2: "0x65b0dE86Df48d72aCdaF7E548b5C836663A0a4fa",
   weth: "0xF42991f02C07AB66cFEa282E7E482382aEB85461"
@@ -105,10 +113,12 @@ var Pegasus = {
 var Ethereum = {
   id: 1,
   name: "Ethereum",
+  isL2: false,
   rpcUrl: process.env.ETHEREUM_MAINNET_RPC_URL || "https://ethereum-rpc.publicnode.com",
   explorerUrl: "https://etherscan.io",
   bridge: {
-    standardBridge: CONTRACTS.ethereum.STANDARD_BRIDGE
+    standardBridge: CONTRACTS.ethereum.STANDARD_BRIDGE,
+    l1ERC20Predicate: CONTRACTS.ethereum.L1_ERC20_PREDICATE
   },
   permit2: "0x000000000022D473030F116dDEE9F6B43aC78BA3",
   weth: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
@@ -116,10 +126,12 @@ var Ethereum = {
 var Sepolia = {
   id: 11155111,
   name: "Ethereum Sepolia",
+  isL2: false,
   rpcUrl: process.env.ETHEREUM_SEPOLIA_RPC_URL || "https://ethereum-sepolia-rpc.publicnode.com",
   explorerUrl: "https://sepolia.etherscan.io",
   bridge: {
-    standardBridge: CONTRACTS.ethereumSepolia.STANDARD_BRIDGE
+    standardBridge: CONTRACTS.ethereumSepolia.STANDARD_BRIDGE,
+    l1ERC20Predicate: CONTRACTS.ethereumSepolia.L1_ERC20_PREDICATE
   },
   permit2: "0x000000000022D473030F116dDEE9F6B43aC78BA3",
   weth: "0x7b79995e5f793A07Bc00c21412e50Ecae098E7f9"
@@ -133,18 +145,18 @@ var getPublicClient = (chainRef) => {
   if (!chain) throw new Error("Unsupported chain");
   let viemChain;
   switch (chain.id) {
-    case Phoenix.id:
-      viemChain = import_chains.lightlinkPhoenix;
-      break;
-    case Pegasus.id:
-      viemChain = import_chains.lightlinkPegasus;
-      break;
-    case Ethereum.id:
-      viemChain = import_chains.mainnet;
-      break;
-    case Sepolia.id:
-      viemChain = import_chains.sepolia;
-      break;
+    // case Phoenix.id:
+    //   viemChain = lightlinkPhoenix;
+    //   break;
+    // case Pegasus.id:
+    //   viemChain = lightlinkPegasus;
+    //   break;
+    // case Ethereum.id:
+    //   viemChain = mainnet;
+    //   break;
+    // case Sepolia.id:
+    //   viemChain = sepolia;
+    //   break;
     default:
       viemChain = {
         id: chain.id,
@@ -669,52 +681,161 @@ var fetchBalance = async (chainRef, token, account) => {
 
 // src/bridge/standard.ts
 var import_viem8 = require("viem");
-var StandardBridgeABI = [
-  {
-    inputs: [
-      {
-        internalType: "uint32",
-        name: "_minGasLimit",
-        type: "uint32"
-      },
-      {
-        internalType: "bytes",
-        name: "_extraData",
-        type: "bytes"
-      }
-    ],
-    name: "bridgeETH",
-    outputs: [],
-    stateMutability: "payable",
-    type: "function"
-  }
-];
 var prepareStandardBridgeETHDeposit = (chainRef, params) => {
   const txs = [];
   const chain = resolveChainRef(chainRef);
   if (!chain) throw new Error("Unsupported chain");
   const standardBridgeAddress = params.bridgeAddress ?? chain.bridge?.standardBridge;
   if (!standardBridgeAddress) throw new Error("Standard bridge not found");
-  const encodedData = (0, import_viem8.encodeFunctionData)({
-    abi: StandardBridgeABI,
-    functionName: "bridgeETH",
-    args: [params.minGasLimit ?? 3e4, "0x"]
-  });
   txs.push({
     to: standardBridgeAddress,
-    data: encodedData,
+    data: "0x",
     value: params.amount,
-    description: "Bridge ETH"
+    description: "Bridge ETH using the standard bridge"
   });
   return txs;
 };
 
+// src/bridge/poa.ts
+var import_viem9 = require("viem");
+var L1ERC20PredicateABI = [
+  {
+    name: "deposit",
+    inputs: [
+      {
+        internalType: "address",
+        name: "_l1Token",
+        type: "address"
+      },
+      {
+        internalType: "uint256",
+        name: "_amount",
+        type: "uint256"
+      }
+    ],
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function"
+  },
+  //   event DepositToken(bytes message);
+  {
+    name: "DepositToken",
+    inputs: [
+      {
+        internalType: "bytes",
+        name: "message",
+        type: "bytes"
+      }
+    ],
+    outputs: [],
+    type: "event"
+  }
+];
+var L2ERC20PredicateABI = [
+  {
+    name: "withdraw",
+    inputs: [
+      {
+        internalType: "address",
+        name: "_l2Token",
+        type: "address"
+      },
+      {
+        internalType: "uint256",
+        name: "_amount",
+        type: "uint256"
+      }
+    ],
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function"
+  },
+  //   event WithdrawToken(bytes message);
+  {
+    name: "WithdrawToken",
+    inputs: [
+      {
+        internalType: "bytes",
+        name: "message",
+        type: "bytes"
+      }
+    ],
+    outputs: [],
+    type: "event"
+  }
+];
+var preparePoaBridgeToL2 = async (chainRef, sender, params) => {
+  const { amount, token } = params;
+  if (token === "eth") throw new Error("ETH is not supported for POA bridge");
+  if (!token) throw new Error("Token is required");
+  const chain = resolveChainRef(chainRef);
+  if (!chain) throw new Error(`Chain ${chainRef} not found`);
+  const l1ERC20Predicate = params.bridgeAddress ?? chain.bridge?.l1ERC20Predicate;
+  if (!l1ERC20Predicate) throw new Error(`L1 ERC20 Predicate not found`);
+  const allowanceTxs = await ensureAllowance(
+    chainRef,
+    token,
+    l1ERC20Predicate,
+    sender,
+    amount
+  );
+  const depositeData = (0, import_viem9.encodeFunctionData)({
+    abi: L1ERC20PredicateABI,
+    functionName: "deposit",
+    args: [token, amount]
+  });
+  return [
+    ...allowanceTxs,
+    {
+      to: l1ERC20Predicate,
+      data: depositeData,
+      value: amount,
+      description: "Bridge to L2 using POA bridge"
+    }
+  ];
+};
+var preparePoaBridgeToL1 = async (chainRef, sender, params) => {
+  const { amount, token } = params;
+  if (token === "eth") throw new Error("ETH is not supported for POA bridge");
+  if (!token) throw new Error("Token is required");
+  const chain = resolveChainRef(chainRef);
+  if (!chain) throw new Error(`Chain ${chainRef} not found`);
+  const l2ERC20Predicate = params.bridgeAddress ?? chain.bridge?.l2ERC20Predicate;
+  if (!l2ERC20Predicate) throw new Error(`L2 ERC20 Predicate not found`);
+  const allowanceTxs = await ensureAllowance(
+    chainRef,
+    token,
+    l2ERC20Predicate,
+    sender,
+    amount
+  );
+  const withdrawData = (0, import_viem9.encodeFunctionData)({
+    abi: L2ERC20PredicateABI,
+    functionName: "withdraw",
+    args: [token, amount]
+  });
+  return [
+    ...allowanceTxs,
+    {
+      to: l2ERC20Predicate,
+      data: withdrawData,
+      description: "Bridge to L1 using POA bridge"
+    }
+  ];
+};
+var preparePoaBridgeDeposit = async (chainRef, sender, params) => {
+  const chain = resolveChainRef(chainRef);
+  if (!chain) throw new Error(`Chain ${chainRef} not found`);
+  if (chain.isL2) return preparePoaBridgeToL2(chainRef, sender, params);
+  return preparePoaBridgeToL1(chainRef, sender, params);
+};
+
 // src/bridge/bridge.ts
-var prepareBridgeTransfer = (chainRef, params) => {
+var prepareBridgeTransfer = (chainRef, sender, params) => {
   if (params.token === "eth") {
     return prepareStandardBridgeETHDeposit(chainRef, params);
   }
-  throw new Error("Unsupported asset");
+  return preparePoaBridgeDeposit(chainRef, sender, params);
 };
 
 // src/index.ts
