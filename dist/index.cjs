@@ -22,6 +22,7 @@ var index_exports = {};
 __export(index_exports, {
   ensureAllowance: () => ensureAllowance,
   ensurePermit2Allowance: () => ensurePermit2Allowance,
+  extractBridgeTransferID: () => extractBridgeTransferID,
   fetchAllowance: () => fetchAllowance,
   fetchBalance: () => fetchBalance,
   fetchPermit2Allowance: () => fetchPermit2Allowance,
@@ -695,6 +696,99 @@ var prepareStandardBridgeETHDeposit = (chainRef, params) => {
   });
   return txs;
 };
+var CrossDomainMessengerABI = [
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "target",
+        type: "address"
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "sender",
+        type: "address"
+      },
+      {
+        indexed: false,
+        internalType: "bytes",
+        name: "message",
+        type: "bytes"
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "messageNonce",
+        type: "uint256"
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "gasLimit",
+        type: "uint256"
+      }
+    ],
+    name: "SentMessage",
+    type: "event"
+  }
+];
+var hasStandardBridgeLogs = (receipt) => {
+  const logs = (0, import_viem8.parseEventLogs)({
+    abi: CrossDomainMessengerABI,
+    eventName: "SentMessage",
+    logs: receipt.logs
+  });
+  return logs.length > 0;
+};
+var extractStandardBridgeTransferID = async (chainRef, txHash) => {
+  const chain = resolveChainRef(chainRef);
+  if (!chain) throw new Error(`Chain ${chainRef} not found`);
+  const client = getPublicClient(chainRef);
+  const receipt = await client.getTransactionReceipt({ hash: txHash });
+  const logs = (0, import_viem8.parseEventLogs)({
+    abi: CrossDomainMessengerABI,
+    eventName: "SentMessage",
+    logs: receipt.logs
+  });
+  if (logs.length === 0) {
+    throw new Error("SentMessage event not found in transaction");
+  }
+  const sentMessageEvent = logs[0];
+  const { target, sender, message, messageNonce, gasLimit } = sentMessageEvent.args;
+  const encodedMessage = (0, import_viem8.encodeAbiParameters)(
+    [
+      { type: "bytes4" },
+      // function selector
+      { type: "uint256" },
+      // nonce
+      { type: "address" },
+      // sender
+      { type: "address" },
+      // target
+      { type: "uint256" },
+      // value (0 for ETH bridges)
+      { type: "uint256" },
+      // gasLimit
+      { type: "bytes" }
+      // data
+    ],
+    [
+      "0xd764ad0b",
+      // relayMessage function selector
+      messageNonce,
+      sender,
+      target,
+      0n,
+      // value is 0 for standard ETH bridge
+      gasLimit,
+      message
+    ]
+  );
+  return (0, import_viem8.keccak256)(encodedMessage);
+};
 
 // src/bridge/poa.ts
 var import_viem9 = require("viem");
@@ -829,6 +923,54 @@ var preparePoaBridgeDeposit = async (chainRef, sender, params) => {
   if (chain.isL2) return preparePoaBridgeToL2(chainRef, sender, params);
   return preparePoaBridgeToL1(chainRef, sender, params);
 };
+var hasPoaBridgeLogs = (receipt) => {
+  const l1Logs = (0, import_viem9.parseEventLogs)({
+    abi: L1ERC20PredicateABI,
+    logs: receipt.logs
+  });
+  if (l1Logs.length > 0) return true;
+  const l2Logs = (0, import_viem9.parseEventLogs)({
+    abi: L2ERC20PredicateABI,
+    logs: receipt.logs
+  });
+  return l2Logs.length > 0;
+};
+var extractPoaBridgeToL2TransferID = async (chainRef, txHash) => {
+  const chain = resolveChainRef(chainRef);
+  if (!chain) throw new Error(`Chain ${chainRef} not found`);
+  const publicClient = getPublicClient(chainRef);
+  const receipt = await publicClient.getTransactionReceipt({ hash: txHash });
+  if (!receipt) throw new Error(`Transaction ${txHash} not found`);
+  const logs = (0, import_viem9.parseEventLogs)({
+    abi: L1ERC20PredicateABI,
+    logs: receipt.logs
+  });
+  const depositEvent = logs.find((log) => log.eventName === "DepositToken");
+  if (!depositEvent)
+    throw new Error("DepositToken event not found in transaction logs");
+  const message = depositEvent.args.message;
+  const chainId = BigInt(chain.id);
+  const packed = (0, import_viem9.encodePacked)(["uint256", "bytes"], [chainId, message]);
+  return (0, import_viem9.keccak256)(packed);
+};
+var extractPoaBridgeToL1TransferID = async (chainRef, txHash) => {
+  const chain = resolveChainRef(chainRef);
+  if (!chain) throw new Error(`Chain ${chainRef} not found`);
+  const publicClient = getPublicClient(chainRef);
+  const receipt = await publicClient.getTransactionReceipt({ hash: txHash });
+  if (!receipt) throw new Error(`Transaction ${txHash} not found`);
+  const logs = (0, import_viem9.parseEventLogs)({
+    abi: L2ERC20PredicateABI,
+    logs: receipt.logs
+  });
+  const withdrawEvent = logs.find((log) => log.eventName === "WithdrawToken");
+  if (!withdrawEvent)
+    throw new Error("WithdrawToken event not found in transaction logs");
+  const message = withdrawEvent.args.message;
+  const chainId = BigInt(chain.id);
+  const packed = (0, import_viem9.encodePacked)(["uint256", "bytes"], [chainId, message]);
+  return (0, import_viem9.keccak256)(packed);
+};
 
 // src/bridge/bridge.ts
 var prepareBridgeTransfer = (chainRef, sender, params) => {
@@ -836,6 +978,21 @@ var prepareBridgeTransfer = (chainRef, sender, params) => {
     return prepareStandardBridgeETHDeposit(chainRef, params);
   }
   return preparePoaBridgeDeposit(chainRef, sender, params);
+};
+var extractBridgeTransferID = async (chainRef, txHash) => {
+  const chain = resolveChainRef(chainRef);
+  if (!chain) throw new Error(`Chain ${chainRef} not found`);
+  const publicClient = getPublicClient(chainRef);
+  const receipt = await publicClient.getTransactionReceipt({ hash: txHash });
+  if (!receipt) throw new Error(`Transaction ${txHash} not found`);
+  if (hasPoaBridgeLogs(receipt)) {
+    if (chain.isL2)
+      return await extractPoaBridgeToL2TransferID(chainRef, txHash);
+    return await extractPoaBridgeToL1TransferID(chainRef, txHash);
+  }
+  if (hasStandardBridgeLogs(receipt))
+    return await extractStandardBridgeTransferID(chainRef, txHash);
+  throw new Error("No bridge logs found");
 };
 
 // src/index.ts
@@ -851,6 +1008,7 @@ var weth = {
 0 && (module.exports = {
   ensureAllowance,
   ensurePermit2Allowance,
+  extractBridgeTransferID,
   fetchAllowance,
   fetchBalance,
   fetchPermit2Allowance,

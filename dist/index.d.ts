@@ -1,4 +1,4 @@
-import { Address, Abi } from 'viem';
+import { Address, Abi, Hex } from 'viem';
 
 interface PreparedTx {
     to: `0x${string}`;
@@ -196,6 +196,7 @@ interface BridgeParams {
     minGasLimit?: number;
 }
 declare const prepareBridgeTransfer: (chainRef: ChainRef, sender: Address, params: BridgeParams) => PreparedTx[] | Promise<PreparedTx[]>;
+declare const extractBridgeTransferID: (chainRef: ChainRef, txHash: Hex) => Promise<`0x${string}`>;
 
 declare const swap: {
     quoteExactInput: (chainRef: ChainRef, params: QuoteExactInputSingleParams) => Promise<QuoteResult>;
@@ -206,4 +207,4 @@ declare const weth: {
     prepareUnwrapTx: (chainRef: ChainRef, amount: bigint) => PreparedTx;
 };
 
-export { ensureAllowance, ensurePermit2Allowance, fetchAllowance, fetchBalance, fetchPermit2Allowance, fetchTokenDecimals, fetchTokenInfo, fetchTokenName, fetchTokenSymbol, fetchTokenTotalSupply, getContractInfo, prepareApprovalTx, prepareBridgeTransfer, preparePermit2ApprovalTx, resolveEnsDomain, resolveLLDomain, search, swap, weth };
+export { ensureAllowance, ensurePermit2Allowance, extractBridgeTransferID, fetchAllowance, fetchBalance, fetchPermit2Allowance, fetchTokenDecimals, fetchTokenInfo, fetchTokenName, fetchTokenSymbol, fetchTokenTotalSupply, getContractInfo, prepareApprovalTx, prepareBridgeTransfer, preparePermit2ApprovalTx, resolveEnsDomain, resolveLLDomain, search, swap, weth };

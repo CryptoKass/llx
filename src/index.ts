@@ -31,4 +31,7 @@ export {
   ensurePermit2Allowance,
 } from "./token/permit2.js";
 
-export { prepareBridgeTransfer } from "./bridge/bridge.js";
+export {
+  prepareBridgeTransfer,
+  extractBridgeTransferID,
+} from "./bridge/bridge.js";
