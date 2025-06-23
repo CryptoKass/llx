@@ -10,26 +10,26 @@ import type { PreparedTx } from "../common.js";
 import { getPublicClient, resolveChainRef, type ChainRef } from "../chains.js";
 import type { BridgeParams } from "./bridge.js";
 
-const StandardBridgeABI = [
-  {
-    inputs: [
-      {
-        internalType: "uint32",
-        name: "_minGasLimit",
-        type: "uint32",
-      },
-      {
-        internalType: "bytes",
-        name: "_extraData",
-        type: "bytes",
-      },
-    ],
-    name: "bridgeETH",
-    outputs: [],
-    stateMutability: "payable",
-    type: "function",
-  },
-] as const;
+// const StandardBridgeABI = [
+//   {
+//     inputs: [
+//       {
+//         internalType: "uint32",
+//         name: "_minGasLimit",
+//         type: "uint32",
+//       },
+//       {
+//         internalType: "bytes",
+//         name: "_extraData",
+//         type: "bytes",
+//       },
+//     ],
+//     name: "bridgeETH",
+//     outputs: [],
+//     stateMutability: "payable",
+//     type: "function",
+//   },
+// ] as const;
 
 type StandardBridgeDepositParams = BridgeParams;
 
@@ -46,15 +46,9 @@ export const prepareStandardBridgeETHDeposit = (
     params.bridgeAddress ?? chain.bridge?.standardBridge;
   if (!standardBridgeAddress) throw new Error("Standard bridge not found");
 
-  const encodedData = encodeFunctionData({
-    abi: StandardBridgeABI,
-    functionName: "bridgeETH",
-    args: [params.minGasLimit ?? 30000, "0x"],
-  });
-
   txs.push({
     to: standardBridgeAddress,
-    data: encodedData,
+    data: "0x",
     value: params.amount,
     description: "Bridge ETH using the standard bridge",
   });

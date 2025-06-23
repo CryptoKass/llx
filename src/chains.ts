@@ -42,7 +42,7 @@ const CONTRACTS = {
   },
 };
 
-interface Network {
+export interface NetworkDef {
   id: number;
   name: string;
   rpcUrl: string;
@@ -63,7 +63,7 @@ interface Network {
   weth: string;
 }
 
-export const Phoenix: Network = {
+export const Phoenix: NetworkDef = {
   id: 1890,
   name: "Lightlink Phoenix",
   rpcUrl:
@@ -84,7 +84,7 @@ export const Phoenix: Network = {
   weth: "0x7EbeF2A4b1B09381Ec5B9dF8C5c6f2dBECA59c73",
 };
 
-export const Pegasus: Network = {
+export const Pegasus: NetworkDef = {
   id: 1891,
   name: "Lightlink Pegasus",
   rpcUrl:
@@ -105,7 +105,7 @@ export const Pegasus: Network = {
   weth: "0xF42991f02C07AB66cFEa282E7E482382aEB85461",
 };
 
-export const Ethereum: Network = {
+export const Ethereum: NetworkDef = {
   id: 1,
   name: "Ethereum",
   isL2: false,
@@ -121,7 +121,7 @@ export const Ethereum: Network = {
   weth: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
 };
 
-export const Sepolia: Network = {
+export const Sepolia: NetworkDef = {
   id: 11155111,
   name: "Ethereum Sepolia",
   isL2: false,
@@ -162,18 +162,18 @@ export const getPublicClient = (chainRef: ChainRef) => {
 
   let viemChain: Chain;
   switch (chain.id) {
-    case Phoenix.id:
-      viemChain = lightlinkPhoenix;
-      break;
-    case Pegasus.id:
-      viemChain = lightlinkPegasus;
-      break;
-    case Ethereum.id:
-      viemChain = mainnet;
-      break;
-    case Sepolia.id:
-      viemChain = sepolia;
-      break;
+    // case Phoenix.id:
+    //   viemChain = lightlinkPhoenix;
+    //   break;
+    // case Pegasus.id:
+    //   viemChain = lightlinkPegasus;
+    //   break;
+    // case Ethereum.id:
+    //   viemChain = mainnet;
+    //   break;
+    // case Sepolia.id:
+    //   viemChain = sepolia;
+    //   break;
     default:
       viemChain = {
         id: chain.id,
@@ -193,7 +193,7 @@ export const getPublicClient = (chainRef: ChainRef) => {
   });
 };
 
-export type ChainRef = number | Network;
+export type ChainRef = number | NetworkDef;
 
 export const resolveChainRef = (ref: ChainRef) => {
   if (typeof ref === "number") {
